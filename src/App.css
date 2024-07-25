@@ -1,0 +1,86 @@
+@import url("https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&family=Playwrite+DE+Grund:wght@100..400&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.sb {
+  box-shadow: 0.1rem 0.1rem 0.5rem #000, -0.1rem -0.1rem 0.5rem #000;
+}
+
+.sw {
+  background: linear-gradient(145deg, #ffffff, #e6e6e6);
+  box-shadow: 5px 5px 10px #a09f9f, -1px -1px 10px #ffffff;
+}
+
+.bs-inset {
+  box-shadow: inset 0.1rem 0.1rem 0.6rem #000, inset -0.1rem -0.1rem 0.5rem #000;
+}
+
+.form-style {
+  @apply shadow-light-mode dark:shadow-dark-mode bg-light-gradient dark:bg-dark-gradient rounded-lg w-full p-3 text-[16px] leading-[24px] outline-none;
+}
+
+.btn {
+  @apply px-6 py-2 shadow-light-mode dark:shadow-dark-mode bg-light-gradient dark:bg-dark-gradient rounded-lg hover:scale-95 transition-all duration-200;
+}
+
+::-webkit-scrollbar {
+  /* background-color: none; */
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #45454534;
+  border-radius: 20px;
+}
+
+.animate {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(50px);
+  animation: landing 1s forwards;
+}
+
+/* HTML: <div class="loader"></div> */
+.loader {
+  --s: 64px;
+  width: var(--s);
+  aspect-ratio: 2;
+  --_g: #575656 90%, #0000;
+  background: radial-gradient(farthest-side, var(--_g)) 0 50%/25% 50%,
+    radial-gradient(farthest-side at bottom, var(--_g)) 50%
+      calc(50% - var(--s) / 16) / 25% 25%,
+    radial-gradient(farthest-side at top, var(--_g)) 50%
+      calc(50% + var(--s) / 16) / 25% 25%,
+    radial-gradient(farthest-side at bottom, var(--_g)) 100%
+      calc(50% - var(--s) / 16) / 25% 25%,
+    radial-gradient(farthest-side at top, var(--_g)) 100%
+      calc(50% + var(--s) / 16) / 25% 25%;
+  background-repeat: no-repeat;
+  animation: l14 1s infinite;
+}
+@keyframes l14 {
+  25% {
+    background-position: 0 50%, 50% 0, 50% 100%, 100% 0, 100% 100%;
+  }
+  50% {
+    background-position: 100% 50%, 0 0, 0 100%, 50% 0, 50% 100%;
+  }
+  75%,
+  100% {
+    background-position: 100% 50%, 0 calc(50% - var(--s) / 16),
+      0 calc(50% + var(--s) / 16), 50% calc(50% - var(--s) / 16),
+      50% calc(50% + var(--s) / 16);
+  }
+}
+
+@keyframes landing {
+  100% {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0px);
+  }
+}

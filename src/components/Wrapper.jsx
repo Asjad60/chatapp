@@ -1,0 +1,90 @@
+import React, { useCallback, useEffect } from "react";
+import UsersSidebar from "./friendsOrGroups/UsersSidebar";
+import { Outlet, useParams } from "react-router-dom";
+import { getSocket } from "../context/SocketProvider";
+import Navbar from "./Navbar/Navbar";
+import { useDispatch } from "react-redux";
+import { getContextData } from "../context/AuthProvider";
+import { getNotifications } from "../services/operations/userAPI";
+import { setNewMessageAlert } from "../slices/chatSlice";
+
+const Wrapper = () => {
+  const socket = getSocket();
+  const { id } = useParams();
+  const dispatch = useDispatch();
+  const { setNotifications } = getContextData();
+
+  const fetchNotifications = async () => {
+    const result = await getNotifications();
+    if (result) {
+      setNotifications(result.notifications);
+    }
+  };
+
+  const gettingNotifications = useCallback((data) => {
+    console.log("New notification data:", data);
+    if (Array.isArray(data)) {
+      setNotifications(data);
+    } else {
+      setNotifications((prev) => {
+        if (!Array.isArray(prev)) {
+          return prev;
+        }
+        return [...prev, data];
+      });
+    }
+  }, []);
+
+  const handleNewMessageAlert = useCallback(
+    ({ sender }) => {
+      if (sender === id) return;
+      dispatch(setNewMessageAlert({ sender }));
+    },
+    [id]
+  );
+
+  const handleReadNotifications = useCallback((data) => {
+    console.log("updated Noptification => ", data);
+    setNotifications((prev) =>
+      prev.map((item) =>
+        item._id === data._id ? { ...item, read: data.read } : item
+      )
+    );
+  }, []);
+
+  useEffect(() => {
+    socket.on("notification", gettingNotifications);
+    socket.on("new_message_alert", handleNewMessageAlert);
+    socket.on("read_notification", handleReadNotifications);
+    return () => {
+      socket.off("notification", gettingNotifications);
+      socket.off("new_message_alert", handleNewMessageAlert);
+      socket.off("read_notification", handleReadNotifications);
+    };
+  }, [
+    socket,
+    gettingNotifications,
+    handleNewMessageAlert,
+    handleReadNotifications,
+  ]);
+
+  useEffect(() => {
+    socket.connect();
+    socket.emit("user_status");
+    fetchNotifications();
+  }, []);
+
+  return (
+    <div className="min-h-screen w-full flex flex-col items-center justify-center p-3">
+      <Navbar />
+      <div className="relative max-w-[900px] w-full min-h-[37rem] shadow-light-mode dark:shadow-dark-mode dark:bg-dark-gradient bg-light-gradient rounded-b-lg flex">
+        <UsersSidebar />
+        <div className=" w-full h-[70vh]">
+          <Outlet />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Wrapper;
