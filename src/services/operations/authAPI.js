@@ -11,6 +11,11 @@ export const signupUser = async (formData, navigate) => {
       {},
       formData
     );
+
+    if (!result.success) {
+      throw new Error(result.message);
+    }
+
     toast.success("User Created");
     navigate("/login");
   } catch (error) {
