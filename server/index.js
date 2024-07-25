@@ -51,6 +51,10 @@ const onlineUsers = new Set();
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/chat", chatRoutes);
 
+app.get("/", (req, res) => {
+  res.send("<h1>Chat App</h1>");
+});
+
 io.use((socket, next) => {
   cookieParser()(socket.request, socket.request.res, (err) => {
     if (err) return next(err);
