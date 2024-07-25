@@ -47,9 +47,9 @@ const Navbar = () => {
         <Button customClass={"p-2"} title="Notifications">
           <Link to={"/notification"} className="relative">
             <IoNotifications size={25} />
-            {notifications.filter((item) => !item.read).length > 0 && (
+            {notifications?.filter((item) => !item.read).length > 0 && (
               <span className="absolute -bottom-2 -right-1 text-[.6rem] py-0.5 px-1.5 rounded-full bg-red-500">
-                {notifications.filter((item) => !item.read).length}
+                {notifications?.filter((item) => !item.read).length}
               </span>
             )}
           </Link>
