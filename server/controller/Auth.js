@@ -91,6 +91,7 @@ const loginUser = async (req, res) => {
         user.password = undefined;
         let options = {
           expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+          sameSite: "none",
           httpOnly: true,
           secure: true,
         };
