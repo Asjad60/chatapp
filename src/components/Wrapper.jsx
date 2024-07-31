@@ -79,7 +79,7 @@ const Wrapper = () => {
       <Navbar />
       <div className="relative max-w-[900px] w-full min-h-[37rem] shadow-light-mode dark:shadow-dark-mode dark:bg-dark-gradient bg-light-gradient rounded-b-lg flex">
         <UsersSidebar />
-        <div className=" w-full h-[70vh]">
+        <div className="w-full h-full">
           <Outlet />
         </div>
       </div>

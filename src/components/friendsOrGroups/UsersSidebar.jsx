@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { getMyFriends } from "../../services/operations/userAPI";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getContextData } from "../../context/AuthProvider";
 import { getSocket } from "../../context/SocketProvider";
 import { useSelector } from "react-redux";
@@ -10,8 +10,9 @@ const UsersSidebar = () => {
   const [friends, setFriends] = useState([]);
   const { id } = useParams();
   const { newMessageAlert } = useSelector((state) => state.chat);
-  const { lastChatWith } = getContextData();
+  const { lastChatWith, token, setToken } = getContextData();
   const socket = getSocket();
+  const navigate = useNavigate();
 
   const handleUserStatus = useCallback(
     (data) => {
@@ -27,7 +28,7 @@ const UsersSidebar = () => {
   );
 
   const fetchMyFriends = async () => {
-    const result = await getMyFriends();
+    const result = await getMyFriends(token, navigate, setToken);
     if (result) {
       setFriends(result.friends);
     }

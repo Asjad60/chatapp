@@ -20,7 +20,7 @@ export const getAllChats = async (receiverId) => {
     }
   } catch (error) {
     console.log("getAllChats API ERROR ===> ", error);
-    toast.error(error.message);
+    // toast.error(error.message);
   }
   return result;
 };

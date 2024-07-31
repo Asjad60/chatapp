@@ -53,6 +53,7 @@ export const loginUser = async (loginData, navigate, setToken, setUser) => {
 export const logoutUser = async (token, setToken, navigate) => {
   try {
     let result = await apiConnector(authEndpoints.LOGOUT_API, "POST", {
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     });
 

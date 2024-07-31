@@ -1,6 +1,7 @@
 import toast from "react-hot-toast";
 import { apiConnector } from "../apiConnector";
 import { userEndpoints } from "../apis";
+import { logoutUser } from "./authAPI";
 
 export const getAllUsers = async () => {
   let result = null;
@@ -13,12 +14,12 @@ export const getAllUsers = async () => {
     }
   } catch (error) {
     console.log("getAllUser API ERROR ===> ", error);
-    toast.error(error.message);
+    // toast.error(error.message);
   }
   return result;
 };
 
-export const getMyFriends = async () => {
+export const getMyFriends = async (token, navigate, setToken) => {
   let result = null;
   try {
     result = await apiConnector(userEndpoints.GET_MY_FRIENDS);
@@ -29,7 +30,8 @@ export const getMyFriends = async () => {
     }
   } catch (error) {
     console.log("getAllUser API ERROR ===> ", error);
-    toast.error(error.message);
+    logoutUser(token, setToken, navigate);
+    // toast.error(error.message);
   }
   return result;
 };

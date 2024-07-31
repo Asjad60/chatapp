@@ -91,8 +91,8 @@ const Chat = () => {
   // console.log("hello");
 
   return (
-    <section className="w-full p-1 relative">
-      <div className="pb-1 overflow-y-auto h-[63vh]">
+    <section className="w-full h-full flex flex-col p-1 relative">
+      <div className="h-[37rem] pb-1 overflow-y-auto">
         <ChatList messages={messages} userId={user._id} />
         <div ref={ref} />
       </div>
