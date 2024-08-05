@@ -30,7 +30,9 @@ export const getMyFriends = async (token, navigate, setToken) => {
     }
   } catch (error) {
     console.log("getAllUser API ERROR ===> ", error);
-    logoutUser(token, setToken, navigate);
+    // logoutUser(token, setToken, navigate);
+    localStorage.clear();
+    navigate("/login");
     // toast.error(error.message);
   }
   return result;
