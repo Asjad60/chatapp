@@ -11,6 +11,8 @@ export const userEndpoints = {
   GET_NOTIFICATIONS: `${BASE_URL}/user/getNotifications`,
   SEND_FRIEND_REQUEST: `${BASE_URL}/user/sendFriendRequest`,
   GET_MY_FRIENDS: `${BASE_URL}/user/getMyFriends`,
+  RESET_PASSWORD_TOKEN: `${BASE_URL}/user/resetPassword`,
+  UPDATE_PASSWORD: `${BASE_URL}/user/updatePassword`,
 };
 
 export const chatEndpoints = {

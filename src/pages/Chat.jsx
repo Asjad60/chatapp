@@ -12,6 +12,7 @@ import { removeNewMessagesAlert } from "../slices/chatSlice";
 
 const Chat = () => {
   const { user, setLastChatWith } = getContextData();
+  const [loading, setLoading] = useState(false);
   const socket = getSocket();
   const { id } = useParams();
   const dispatch = useDispatch();
@@ -60,10 +61,12 @@ const Chat = () => {
   );
 
   const fetchChats = async () => {
+    setLoading(true);
     const result = await getAllChats(id);
     if (result) {
       setMessages(result.messages);
     }
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -92,8 +95,14 @@ const Chat = () => {
 
   return (
     <section className="w-full h-full flex flex-col p-1 relative">
-      <div className="h-[37rem] pb-1 overflow-y-auto">
-        <ChatList messages={messages} userId={user._id} />
+      <div className="h-[32.5rem] pb-1 overflow-y-auto">
+        {!loading ? (
+          <ChatList messages={messages} userId={user._id} />
+        ) : (
+          <div className="w-full h-full flex justify-center items-center">
+            <div className="loader"></div>
+          </div>
+        )}
         <div ref={ref} />
       </div>
       <div className="form-style p-2 flex items-center gap-2 w-full">

@@ -49,7 +49,7 @@ const SendAttchments = ({ setLastChatWith, id }) => {
 
   return (
     <>
-      <Button className={" cursor-pointer"} onClick={selectImage}>
+      <Button className={" cursor-pointer p-2 "} onClick={selectImage}>
         <GrGallery size={20} />
       </Button>
       {previewImg?.length > 0 && (

@@ -21,8 +21,10 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="rounded-t-lg max-w-[900px] w-full flex justify-between items-start dark:shadow-dark-mode shadow-light-mode dark:bg-dark-gradient bg-light-gradient p-2">
-      <h1 className="text-3xl font-extrabold">Chit Chat</h1>
+    <nav className="rounded-t-lg max-w-[900px] w-full flex justify-between items-start border border-gray-600/30 p-2">
+      <h1 className="text-4xl font-extrabold font-inter uppercase">
+        Chit Chat
+      </h1>
 
       <div className="relative flex gap-3 items-center">
         <div className="">

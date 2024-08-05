@@ -77,7 +77,7 @@ const Wrapper = () => {
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center p-3">
       <Navbar />
-      <div className="relative max-w-[900px] w-full min-h-[37rem] shadow-light-mode dark:shadow-dark-mode dark:bg-dark-gradient bg-light-gradient rounded-b-lg flex">
+      <div className="relative max-w-[900px] w-full min-h-[37rem] border border-gray-600/30 rounded-b-lg flex">
         <UsersSidebar />
         <div className="w-full h-full">
           <Outlet />

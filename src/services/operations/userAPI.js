@@ -79,3 +79,40 @@ export const sendFriendRequest = async (requestId) => {
   toast.dismiss(toastId);
   return result;
 };
+
+export const sendResetPasswordMail = async (email, setMailSent) => {
+  try {
+    const response = await apiConnector(
+      userEndpoints.RESET_PASSWORD_TOKEN,
+      "POST",
+      { "Content-Type": "application/json" },
+      { email }
+    );
+    if (!response.success) {
+      throw new Error(response.message);
+    }
+    setMailSent(true);
+    toast.success("Mail Sent");
+  } catch (error) {
+    console.log("Error Sending Mail ", error);
+    toast.error(error.message);
+  }
+};
+export const updatePassword = async (data, navigate) => {
+  try {
+    const response = await apiConnector(
+      userEndpoints.UPDATE_PASSWORD,
+      "POST",
+      { "Content-Type": "application/json" },
+      data
+    );
+    if (!response.success) {
+      throw new Error(response.message);
+    }
+    navigate("/login");
+    toast.success("Password Changed");
+  } catch (error) {
+    console.log("Error Sending Mail ", error);
+    toast.error(error.message);
+  }
+};

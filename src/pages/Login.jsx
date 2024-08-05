@@ -3,6 +3,7 @@ import { BsFillEyeFill, BsFillEyeSlashFill } from "react-icons/bs";
 import { Link, useNavigate } from "react-router-dom";
 import { loginUser } from "../services/operations/authAPI";
 import { getContextData } from "../context/AuthProvider";
+import Button from "../components/Button";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -28,7 +29,7 @@ const Login = () => {
   return (
     <div className="h-screen grid place-items-center p-2">
       <div
-        className={`animate rounded-lg px-4 py-6 shadow-light-mode dark:shadow-dark-mode bg-light-gradient dark:bg-dark-gradient max-w-[400px] w-full overflow-hidden`}
+        className={`animate rounded-lg px-4 py-6 max-w-[400px] w-full overflow-hidden border border-gray-600/30`}
       >
         <h3 className="text-3xl font-bold  text-center">Login</h3>
         <form
@@ -67,7 +68,7 @@ const Login = () => {
               {showPassword ? <BsFillEyeSlashFill /> : <BsFillEyeFill />}
             </span>
             <Link
-              to="/forgot-password"
+              to="/reset-password"
               className="text-[12px] hover:underline text-end mt-1 max-w-max self-end"
             >
               <span>Forgot Password</span>
@@ -75,9 +76,7 @@ const Login = () => {
           </div>
 
           <div>
-            <button type="submit" className="btn">
-              Login
-            </button>
+            <Button type="submit" customClass={"px-4 py-2"}>Login</Button>
           </div>
 
           <span className="text-[12px] tracking-wider ">

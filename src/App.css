@@ -20,11 +20,11 @@
 }
 
 .form-style {
-  @apply shadow-light-mode dark:shadow-dark-mode bg-light-gradient dark:bg-dark-gradient rounded-lg w-full p-3 text-[16px] leading-[24px] outline-none;
+  @apply border border-gray-300 text-black rounded-lg w-full p-3 text-[16px] leading-[24px] outline-none;
 }
 
 .btn {
-  @apply px-6 py-2 shadow-light-mode dark:shadow-dark-mode bg-light-gradient dark:bg-dark-gradient rounded-lg hover:scale-95 transition-all duration-200;
+  @apply px-6 py-2  rounded-lg hover:scale-95 transition-all duration-200;
 }
 
 ::-webkit-scrollbar {
@@ -44,12 +44,11 @@
   animation: landing 1s forwards;
 }
 
-/* HTML: <div class="loader"></div> */
 .loader {
   --s: 64px;
   width: var(--s);
   aspect-ratio: 2;
-  --_g: #575656 90%, #0000;
+  --_g: #3f5abb 90%, #0000;
   background: radial-gradient(farthest-side, var(--_g)) 0 50%/25% 50%,
     radial-gradient(farthest-side at bottom, var(--_g)) 50%
       calc(50% - var(--s) / 16) / 25% 25%,

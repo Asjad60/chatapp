@@ -10,14 +10,16 @@ const ChatList = ({ messages, userId }) => {
         return (
           <div
             key={i + msg.content}
-            className={`flex ${userId === msg.sender && "justify-end"}`}
+            className={`flex text-white ${
+              userId === msg.sender && "justify-end "
+            }`}
           >
             {msg.content && (
               <div
-                className={` bg-zinc-800 max-w-[300px] break-words ${
+                className={` bg-black/70 max-w-[300px] break-words ${
                   msg.sender === userId
-                    ? " rounded-lg rounded-ee-none p-1"
-                    : "rounded-lg rounded-ss-none p-2"
+                    ? " rounded-md rounded-tr-none p-1"
+                    : "rounded-md rounded-ss-none p-2"
                 }`}
                 style={{
                   backgroundColor: msg.sender === userId && "darkgreen",
@@ -38,7 +40,11 @@ const ChatList = ({ messages, userId }) => {
                     to={file.url}
                     target="_blank"
                     key={`${file._id}_${i}`}
-                    className={` relative flex flex-col  max-w-[250px] gap-2 p-1 bg-[darkgreen]/70 rounded-md`}
+                    className={` relative flex flex-col  max-w-[250px] gap-2 p-1 ${
+                      msg.sender === userId
+                        ? "bg-[darkgreen]/70"
+                        : "bg-black/70"
+                    } rounded-md`}
                   >
                     <picture key={i}>
                       <img

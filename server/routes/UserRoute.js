@@ -8,6 +8,10 @@ import {
 } from "../controller/User.js";
 import { upload } from "../config/multer-config.js";
 import { isAuthenticated } from "../middleware/auth.js";
+import {
+  resetPassowrd,
+  sendResetPasswordToken,
+} from "../controller/ResetPassword.js";
 const router = express.Router();
 
 //userAuth
@@ -22,5 +26,9 @@ router.get("/getMyFriends", isAuthenticated, getMyFriends);
 // user notifications
 router.get("/getNotifications", isAuthenticated, getNotifications);
 router.post("/sendFriendRequest", isAuthenticated, sendFriendRequest);
+
+//resetPassword
+router.post("/resetPassword", sendResetPasswordToken);
+router.post("/updatePassword", resetPassowrd);
 
 export default router;

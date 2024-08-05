@@ -6,6 +6,7 @@ import { FcCamera } from "react-icons/fc";
 import { GiCrossMark } from "react-icons/gi";
 import { toast } from "react-hot-toast";
 import { signupUser } from "../services/operations/authAPI";
+import Button from "../components/Button";
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -71,7 +72,7 @@ const Signup = () => {
   return (
     <div className="h-screen grid place-items-center p-2">
       <div
-        className={`animate rounded-lg px-4 py-6 shadow-light-mode dark:shadow-dark-mode bg-light-gradient dark:bg-dark-gradient max-w-[400px] w-full overflow-hidden`}
+        className={`animate rounded-lg px-4 py-6  max-w-[400px] w-full overflow-hidden border border-gray-600/30`}
       >
         <h3 className="text-3xl font-bold  text-center">Signup</h3>
         <form
@@ -174,9 +175,9 @@ const Signup = () => {
           </div>
 
           <div>
-            <button type="submit" className="btn">
+            <Button type="submit" customClass={"px-4 py-2"}>
               Create
-            </button>
+            </Button>
           </div>
 
           <span className="text-[12px] tracking-wider ">

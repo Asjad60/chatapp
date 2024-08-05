@@ -35,6 +35,9 @@ const userSchema = new Schema(
     token: {
       type: String,
     },
+    resetPasswordExpire: {
+      type: Date,
+    },
   },
   { timestamps: true }
 );

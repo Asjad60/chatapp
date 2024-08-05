@@ -8,6 +8,7 @@ import FriendsLink from "./FriendsLink";
 
 const UsersSidebar = () => {
   const [friends, setFriends] = useState([]);
+  const [loading, setLoading] = useState(false);
   const { id } = useParams();
   const { newMessageAlert } = useSelector((state) => state.chat);
   const { lastChatWith, token, setToken } = getContextData();
@@ -28,10 +29,12 @@ const UsersSidebar = () => {
   );
 
   const fetchMyFriends = async () => {
+    setLoading(true);
     const result = await getMyFriends(token, navigate, setToken);
     if (result) {
       setFriends(result.friends);
     }
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -54,9 +57,14 @@ const UsersSidebar = () => {
 
   return (
     <aside className="max-w-[200px] border-r border-stone-800 w-full overflow-hidden">
-      <div className=" w-full flex flex-col gap-4 ">
-        {friends?.length > 0 ? (
-          friends
+      {loading ? (
+        <div className="w-full h-full flex justify-center items-center">
+          <div className="loader"></div>
+        </div>
+      ) : (
+        <div className=" w-full flex flex-col gap-4 ">
+          {/* {friends?.length > 0 ? ( */}
+          {friends
             ?.sort((a, b) =>
               a._id.toString() === lastChatWith?.toString() &&
               b._id.toString() !== lastChatWith?.toString()
@@ -75,13 +83,14 @@ const UsersSidebar = () => {
                   newMessageAlert={newMessageAlert2}
                 />
               );
-            })
-        ) : (
-          <h2 className="mx-auto mt-2 font-inter font-bold text-5xl ml-3 text-black/20 -rotate-45">
-            You Don't Have Friends
-          </h2>
-        )}
-      </div>
+            })}
+          {/* ) : (
+            <h2 className="mx-auto mt-2 font-inter font-bold text-5xl ml-3 text-black/20 -rotate-45">
+              You Don't Have Friends
+            </h2>
+          )} */}
+        </div>
+      )}
     </aside>
   );
 };
