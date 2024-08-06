@@ -26,6 +26,7 @@ export const signupUser = async (formData, navigate) => {
 };
 
 export const loginUser = async (loginData, navigate, setToken, setUser) => {
+  const toastId = toast.loading("Loading...");
   try {
     let result = await apiConnector(
       authEndpoints.LOGIN_API,
@@ -48,6 +49,7 @@ export const loginUser = async (loginData, navigate, setToken, setUser) => {
     console.log("loginUser API ERROR ===> ", error);
     toast.error(error.message);
   }
+  toast.dismiss(toastId);
 };
 
 export const logoutUser = async (token, setToken, navigate) => {

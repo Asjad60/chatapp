@@ -105,6 +105,7 @@ const UpdatePassword = () => {
               className="form-style"
               placeholder="Enter new password"
               onChange={handleNewPassword}
+              required
             />
           </div>
           <div className="mb-3">
@@ -118,6 +119,7 @@ const UpdatePassword = () => {
               className="form-style"
               placeholder="Confirm new password"
               onChange={handleNewPassword}
+              required
             />
           </div>
           <Button type="submit" customClass="py-2 px-4 ">
