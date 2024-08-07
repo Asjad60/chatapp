@@ -141,3 +141,4 @@ server.listen(PORT, () => {
 });
 
 export { userSocketIDs, onlineUsers, io };
+export default server;
