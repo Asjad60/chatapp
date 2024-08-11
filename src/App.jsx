@@ -5,6 +5,7 @@ import PrivateRoute from "./components/PrivateRoute";
 import OpenRoute from "./components/OpenRoute";
 import ResetPassword from "./pages/ResetPassword";
 import UpdatePassword from "./pages/UpdatePassword";
+import Error from "./pages/Error";
 
 const Home = lazy(() => import("./pages/Home"));
 const Login = lazy(() => import("./pages/Login"));
@@ -69,6 +70,8 @@ function App() {
             <Route path="/chat/:id" element={<Chat />} />
             <Route path="/notification" element={<Notification />} />
           </Route>
+
+          <Route path="*" element={<Error />} />
         </Routes>
       </Suspense>
     </main>

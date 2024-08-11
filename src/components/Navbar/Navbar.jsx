@@ -26,7 +26,7 @@ const Navbar = () => {
         Chit Chat
       </h1>
 
-      <div className="relative flex gap-3 items-center">
+      <div className="relative flex gap-2 items-center flex-wrap">
         <div className="">
           <Button
             onClick={() => setSearchUser(true)}

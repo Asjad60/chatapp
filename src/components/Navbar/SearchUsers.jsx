@@ -49,7 +49,7 @@ const SearchUsers = ({ user, searchUser, setSearchUser, users, setUsers }) => {
   }, [searchValue]);
 
   return (
-    <div className=" absolute -left-2/4 min-[400px]:-left-[100%] top-12 z-10 max-w-[300px] rounded-lg p-1 border border-gray-600/30">
+    <div className=" absolute -left-2/4 min-[400px]:-left-[100%] top-12 z-[100] max-w-[300px] bg-slate-100 rounded-lg p-1 border border-gray-600/30">
       <div className="flex justify-end mb-5">
         <Button onClick={() => setSearchUser(false)} customClass={"p-1"}>
           <GiCrossedBones size={20} />

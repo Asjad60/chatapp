@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from "react";
 import UsersSidebar from "./friendsOrGroups/UsersSidebar";
-import { Outlet, useParams } from "react-router-dom";
+import { Outlet, useLocation, useParams } from "react-router-dom";
 import { getSocket } from "../context/SocketProvider";
 import Navbar from "./Navbar/Navbar";
 import { useDispatch } from "react-redux";
@@ -12,6 +12,7 @@ const Wrapper = () => {
   const socket = getSocket();
   const { id } = useParams();
   const dispatch = useDispatch();
+  const location = useLocation();
   const { setNotifications } = getContextData();
 
   const fetchNotifications = async () => {
@@ -77,9 +78,13 @@ const Wrapper = () => {
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center p-3">
       <Navbar />
-      <div className="relative max-w-[900px] w-full min-h-[37rem] border border-gray-600/30 rounded-b-lg flex">
+      <div className="relative max-w-[900px] w-full min-h-[700px] border border-gray-600/30 rounded-b-lg flex z-10">
         <UsersSidebar />
-        <div className="w-full h-full">
+        <div
+          className={`w-full h-full ${
+            location.pathname !== "/" ? "z-[20]" : "z-[5]"
+          } absolute sm:static inset-0 bg-slate-100`}
+        >
           <Outlet />
         </div>
       </div>
