@@ -217,9 +217,38 @@ const getNotifications = async (req, res) => {
   }
 };
 
+const getMyProfile = async (req, res) => {
+  try {
+    const user = User.findById(req.user.id)
+      .select("-password")
+      .populate("friends")
+      .exec();
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User Not Found",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "User Found",
+      user,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Error Getting MyProfile",
+      error: error.message,
+    });
+  }
+};
+
 export {
   getAllUsers,
   getMyFriends,
+  getMyProfile,
   sendFriendRequest,
   getNotifications,
   socketFriendRequestHandler,

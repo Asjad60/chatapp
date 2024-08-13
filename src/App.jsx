@@ -1,11 +1,13 @@
 import { lazy, Suspense, useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import "./App.css";
 import PrivateRoute from "./components/PrivateRoute";
 import OpenRoute from "./components/OpenRoute";
 import ResetPassword from "./pages/ResetPassword";
 import UpdatePassword from "./pages/UpdatePassword";
 import Error from "./pages/Error";
+import { getContextData } from "./context/AuthProvider";
+import { getMyProfile } from "./services/operations/userAPI";
 
 const Home = lazy(() => import("./pages/Home"));
 const Login = lazy(() => import("./pages/Login"));
@@ -15,6 +17,13 @@ const Notification = lazy(() => import("./pages/Notification"));
 const Wrapper = lazy(() => import("./components/Wrapper"));
 
 function App() {
+  const navigate = useNavigate();
+  const { setUser, setToken } = getContextData();
+
+  useEffect(() => {
+    getMyProfile(setToken, setUser, navigate);
+  }, []);
+
   return (
     <main className="App flex flex-col min-h-screen w-screen font-comfortaa bg-slate-100">
       <Suspense

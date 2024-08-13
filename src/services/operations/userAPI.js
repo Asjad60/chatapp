@@ -1,7 +1,6 @@
 import toast from "react-hot-toast";
 import { apiConnector } from "../apiConnector";
 import { userEndpoints } from "../apis";
-import { logoutUser } from "./authAPI";
 
 export const getAllUsers = async () => {
   let result = null;
@@ -30,11 +29,6 @@ export const getMyFriends = async (token, navigate, setToken) => {
     }
   } catch (error) {
     console.log("getAllUser API ERROR ===> ", error);
-    // logoutUser(token, setToken, navigate);
-    // toast.error(error.message);
-    setToken(null);
-    localStorage.clear();
-    navigate("/login");
   }
   return result;
 };
@@ -117,5 +111,22 @@ export const updatePassword = async (data, navigate) => {
   } catch (error) {
     console.log("Error Sending Mail ", error);
     toast.error(error.message);
+  }
+};
+
+export const getMyProfile = async (setToken, setUser, navigate) => {
+  try {
+    let result = await apiConnector(userEndpoints.GET_MY_PROFILE);
+    if (!result.success) {
+      throw new Error(result.message);
+    }
+    setUser(result.user);
+  } catch (error) {
+    console.log("Error Getting My Profile ", error);
+    setToken(null);
+    setUser(null);
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/login");
   }
 };

@@ -3,6 +3,7 @@ import { signupUser, loginUser, logoutUser } from "../controller/Auth.js";
 import {
   getAllUsers,
   getMyFriends,
+  getMyProfile,
   getNotifications,
   sendFriendRequest,
 } from "../controller/User.js";
@@ -21,6 +22,7 @@ router.post("/logout", isAuthenticated, logoutUser);
 
 //users
 router.get("/getAllUsers", isAuthenticated, getAllUsers);
+router.get("/me", isAuthenticated, getMyProfile);
 router.get("/getMyFriends", isAuthenticated, getMyFriends);
 
 // user notifications

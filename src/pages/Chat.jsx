@@ -95,7 +95,7 @@ const Chat = () => {
 
   return (
     <section className="w-full h-full flex flex-col p-1 relative">
-      <div className="h-[40rem] pb-1 overflow-y-auto">
+      <div className="h-[calc(75vh-65px)] pb-1 overflow-y-auto">
         {!loading ? (
           <ChatList messages={messages} userId={user._id} />
         ) : (

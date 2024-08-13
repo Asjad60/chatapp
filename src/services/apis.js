@@ -13,6 +13,7 @@ export const userEndpoints = {
   GET_MY_FRIENDS: `${BASE_URL}/user/getMyFriends`,
   RESET_PASSWORD_TOKEN: `${BASE_URL}/user/resetPassword`,
   UPDATE_PASSWORD: `${BASE_URL}/user/updatePassword`,
+  GET_MY_PROFILE: `${BASE_URL}/user/me`,
 };
 
 export const chatEndpoints = {
