@@ -21,7 +21,9 @@ function App() {
   const { setUser, setToken } = getContextData();
 
   useEffect(() => {
-    getMyProfile(setToken, setUser, navigate);
+    if (localStorage.getItem("token")) {
+      getMyProfile(setToken, setUser, navigate);
+    }
   }, []);
 
   return (

@@ -4,7 +4,11 @@ import { Link } from "react-router-dom";
 const FriendsLink = ({ friend, id, newMessageAlert }) => {
   return (
     <div className={`${id === friend._id && " bg-black/20"} p-2`}>
-      <Link to={`/chat/${friend._id}`}>
+      <Link
+        to={`/chat/${friend._id}?username=${encodeURIComponent(
+          friend.username
+        )}&imageUrl=${encodeURIComponent(friend.image.url)}`}
+      >
         <div className="relative flex justify-between items-center">
           <div className={`flex gap-2 items-center`}>
             <picture>

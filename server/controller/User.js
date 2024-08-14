@@ -219,9 +219,12 @@ const getNotifications = async (req, res) => {
 
 const getMyProfile = async (req, res) => {
   try {
-    const user = User.findById(req.user.id)
+    const user = await User.findById(req.user.id)
       .select("-password")
-      .populate("friends")
+      .populate({
+        path: "friends",
+        select: "-password",
+      })
       .exec();
 
     if (!user) {

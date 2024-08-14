@@ -6,6 +6,10 @@
   box-sizing: border-box;
 }
 
+.details::marker {
+  content: "";
+}
+
 .sb {
   box-shadow: 0.1rem 0.1rem 0.5rem #000, -0.1rem -0.1rem 0.5rem #000;
 }
@@ -33,7 +37,7 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #45454534;
+  background-color: #ffffff72;
   border-radius: 20px;
 }
 

@@ -78,7 +78,7 @@ const Wrapper = () => {
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center p-3">
       <Navbar />
-      <div className="relative max-w-[900px] w-full min-h-[75vh] border border-gray-600/30 rounded-b-lg flex z-10">
+      <div className="relative overflow-hidden max-w-[900px] w-full min-h-[75vh] border border-gray-600/30 rounded-b-lg flex z-10">
         <UsersSidebar />
         <div
           className={`w-full h-full ${

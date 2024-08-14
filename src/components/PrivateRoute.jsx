@@ -4,7 +4,7 @@ import { Navigate } from "react-router-dom";
 
 const PrivateRoute = ({ children }) => {
   const { token } = getContextData();
-  if (token) {
+  if (token !== null) {
     return children;
   } else {
     return <Navigate to={"/login"} />;

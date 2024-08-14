@@ -121,6 +121,7 @@ export const getMyProfile = async (setToken, setUser, navigate) => {
       throw new Error(result.message);
     }
     setUser(result.user);
+    localStorage.setItem("user", JSON.stringify(result.user));
   } catch (error) {
     console.log("Error Getting My Profile ", error);
     setToken(null);

@@ -5,7 +5,7 @@ import { IoCheckmarkDoneSharp } from "react-icons/io5";
 const ChatList = ({ messages, userId }) => {
   // console.log("userId => ", userId);
   return (
-    <div className="w-full flex flex-col gap-2">
+    <div className="w-full flex flex-col gap-2 pl-1">
       {messages?.map((msg, i) => {
         return (
           <div
@@ -16,7 +16,7 @@ const ChatList = ({ messages, userId }) => {
           >
             {msg.content && (
               <div
-                className={` bg-black/70 max-w-[300px] break-words ${
+                className={` bg-black/70 max-w-[150px] min-[335px]:max-w-[300px] break-words ${
                   msg.sender === userId
                     ? " rounded-md rounded-tr-none p-1"
                     : "rounded-md rounded-ss-none p-2"
