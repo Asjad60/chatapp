@@ -114,8 +114,10 @@ const Chat = () => {
         backgroundImage: `url(${bgArray[bgImageIndex]})`,
       }}
     >
-      <div className="bg-[rgba(0,0,0,0.2)] relative h-full pb-1">
-        <div className="h-[calc(75vh-63px)] pb-1 overflow-y-auto ">
+      <div className="bg-[rgba(0,0,0,0.2)] relative h-full pb-1 ">
+        <FriendProfile setBgImageIndex={setBgImageIndex} bgArray={bgArray} />
+
+        <div className="sm:min-h-[calc(275px-115px)] h-[calc(75vh-116px)] pb-1 overflow-y-auto pt-1">
           {!loading ? (
             <ChatList messages={messages} userId={user._id} />
           ) : (
@@ -144,8 +146,6 @@ const Chat = () => {
             </div>
           </form>
         </div>
-
-        <FriendProfile setBgImageIndex={setBgImageIndex} bgArray={bgArray} />
       </div>
     </section>
   );
