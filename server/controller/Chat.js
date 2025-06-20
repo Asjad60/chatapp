@@ -1,8 +1,6 @@
 import { NEW_MESSAGE, NEW_MESSAGE_ALERT } from "../constants/events.js";
 import { Message } from "../models/Mesaage.js";
 import { uploadFileToCloud } from "../utils/uploadImgToCloud.js";
-import { userSocketIDs, io } from "../index.js";
-import fs from "fs";
 import { User } from "../models/User.js";
 
 export const getAllChats = async (req, res) => {
@@ -42,6 +40,9 @@ export const getAllChats = async (req, res) => {
 
 export const sendAttachments = async (req, res) => {
   try {
+    const userSocketIDs = req.app.get("userSocketIDs");
+    const io = req.app.get("io");
+
     const userId = req.user.id;
     const { receiverId } = req.body;
     const files = req.files;

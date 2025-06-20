@@ -1,6 +1,5 @@
 import { User } from "../models/User.js";
 import { Notification } from "../models/Notification.js";
-import { io, userSocketIDs } from "../index.js";
 import { NOTIFICATION, REFETCH_FRINEDS } from "../constants/events.js";
 
 const getAllUsers = async (req, res) => {
@@ -59,6 +58,9 @@ const getMyFriends = async (req, res) => {
 
 const sendFriendRequest = async (req, res) => {
   try {
+    const io = req.app.get("io");
+    const userSocketIDs = req.app.get("userSocketIDs");
+
     const userId = req.user.id;
     const { requestId: receiver } = req.body;
     // console.log("requestId => ", requestId);
@@ -123,7 +125,9 @@ const socketFriendRequestHandler = async (
   requestedUser,
   notificationId,
   request,
-  userId
+  userId,
+  io,
+  userSocketIDs
 ) => {
   try {
     const senderUser = await User.findById(userId).select("-password");

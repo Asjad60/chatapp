@@ -37,9 +37,15 @@ const messageSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    group: {
+      type: Schema.Types.ObjectId,
+      ref: "Group",
+    },
   },
   { timestamps: true }
 );
+
+messageSchema.index({ group: 1, createdAt: -1 });
 
 export const Message =
   mongoose.models.Message || model("Message", messageSchema);
