@@ -22,8 +22,8 @@ const ResetPassword = () => {
           <div className="loader"></div>
         </div>
       ) : (
-        <div className="max-w-[450px] w-full flex flex-col gap-4 p-2">
-          <h1 className="text-3xl font-medium">
+        <div className="max-w-[450px] w-full flex flex-col gap-4 p-2 text-slate-100">
+          <h1 className="text-3xl font-medium ">
             {!mailSent ? "Reset Password" : "Check Mail"}
           </h1>
           <p>

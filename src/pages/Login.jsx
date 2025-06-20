@@ -4,14 +4,15 @@ import { Link, useNavigate } from "react-router-dom";
 import { loginUser } from "../services/operations/authAPI";
 import { getContextData } from "../context/AuthProvider";
 import Button from "../components/Button";
+import TextHighlighter from "../components/TextHighlighter";
 
 const Login = () => {
   const navigate = useNavigate();
   const { setToken, setUser } = getContextData();
   const [showPassword, setShowPassword] = useState(false);
   const [loginData, setLoginData] = useState({
-    email: "",
-    password: "",
+    email: "saazuyt0@gmail.com",
+    password: "As@123",
   });
 
   const handleChange = (e) => {
@@ -27,11 +28,16 @@ const Login = () => {
   };
 
   return (
-    <div className="h-screen grid place-items-center p-2">
+    <div className="h-screen grid place-items-center p-2 text-slate-100">
       <div
         className={`animate rounded-lg px-4 py-6 max-w-[400px] w-full overflow-hidden border border-gray-600/30`}
       >
-        <h3 className="text-3xl font-bold  text-center">Login</h3>
+        {/* <h3 className="text-3xl font-bold  text-center">Login</h3> */}
+        <TextHighlighter
+          text={"Login"}
+          tag={"h2"}
+          customClass={"text-3xl text-center font-extrabold"}
+        />
         <form
           className="animate flex flex-col gap-6 mt-8 items-center"
           onSubmit={handleSubmitLogin}
@@ -76,7 +82,9 @@ const Login = () => {
           </div>
 
           <div>
-            <Button type="submit" customClass={"px-4 py-2"}>Login</Button>
+            <Button type="submit" customClass={"px-4 py-2"}>
+              Login
+            </Button>
           </div>
 
           <span className="text-[12px] tracking-wider ">

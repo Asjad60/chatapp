@@ -1,25 +1,37 @@
-import mongoose, { Schema, Types } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 const groupSchema = new Schema(
   {
     members: [
       {
-        type: Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "User",
+        required: true,
       },
     ],
-    admin: [
-      {
-        type: Types.ObjectId,
-        ref: "User",
-      },
-    ],
+    admin: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+
     messages: [
       {
-        type: Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Message",
       },
     ],
+    groupName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    groupProfile: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
+
+const Group = mongoose.models.Group || mongoose.model("Group", groupSchema);
+export default Group;

@@ -27,64 +27,70 @@ function App() {
   }, []);
 
   return (
-    <main className="App flex flex-col min-h-screen w-screen font-comfortaa bg-slate-100">
-      <Suspense
-        fallback={
-          <div className="min-h-screen grid place-items-center">
-            <div className="loader"></div>
-          </div>
-        }
-      >
-        <Routes>
-          <Route
-            path="/login"
-            element={
-              <OpenRoute>
-                <Login />
-              </OpenRoute>
-            }
-          />
+    <main className="App flex flex-col min-h-screen w-screen font-comfortaa [background:radial-gradient(110%_110%_at_50%_10%,#000_40%,#29536E_100%)]">
+      <div className="absolute inset-0 opacity-20 z-[1]">
+        <div className="h-full w-full bg-[linear-gradient(to_right,rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.2)_1px,transparent_1px)] bg-[size:3rem_3rem]"></div>
+      </div>
 
-          <Route
-            path="/signup"
-            element={
-              <OpenRoute>
-                <Signup />
-              </OpenRoute>
-            }
-          />
-          <Route
-            path="/reset-password"
-            element={
-              <OpenRoute>
-                <ResetPassword />
-              </OpenRoute>
-            }
-          />
-          <Route
-            path="/update-password/:token"
-            element={
-              <OpenRoute>
-                <UpdatePassword />
-              </OpenRoute>
-            }
-          />
+      <div className="z-10">
+        <Suspense
+          fallback={
+            <div className="min-h-screen grid place-items-center">
+              <div className="loader"></div>
+            </div>
+          }
+        >
+          <Routes>
+            <Route
+              path="/login"
+              element={
+                <OpenRoute>
+                  <Login />
+                </OpenRoute>
+              }
+            />
 
-          <Route
-            element={
-              <PrivateRoute>
-                <Wrapper />
-              </PrivateRoute>
-            }
-          >
-            <Route path="/" element={<Home />} />
-            <Route path="/chat/:id" element={<Chat />} />
-            <Route path="/notification" element={<Notification />} />
-          </Route>
+            <Route
+              path="/signup"
+              element={
+                <OpenRoute>
+                  <Signup />
+                </OpenRoute>
+              }
+            />
+            <Route
+              path="/reset-password"
+              element={
+                <OpenRoute>
+                  <ResetPassword />
+                </OpenRoute>
+              }
+            />
+            <Route
+              path="/update-password/:token"
+              element={
+                <OpenRoute>
+                  <UpdatePassword />
+                </OpenRoute>
+              }
+            />
 
-          <Route path="*" element={<Error />} />
-        </Routes>
-      </Suspense>
+            <Route
+              element={
+                <PrivateRoute>
+                  <Wrapper />
+                </PrivateRoute>
+              }
+            >
+              <Route path="/" element={<Home />} />
+              <Route path="/chat/:id" element={<Chat />} />
+              <Route path="/notification" element={<Notification />} />
+            </Route>
+
+            <Route path="*" element={<Error />} />
+          </Routes>
+        </Suspense>
+      </div>
     </main>
   );
 }

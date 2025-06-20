@@ -9,10 +9,19 @@ export const getSocket = () => {
 };
 
 const SocketProvider = ({ children }) => {
+  const serverUrl = import.meta.env.VITE_IO_SERVER;
+
+  if (!serverUrl) {
+    throw new Error("Socket server URL is undefined");
+  }
+
   const socket = useMemo(
     () =>
-      io(import.meta.env.VITE_IO_SERVER, {
+      io(serverUrl, {
         withCredentials: true,
+        autoConnect: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 3000,
       }),
     []
   );

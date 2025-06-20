@@ -31,7 +31,7 @@ const UpdatePassword = () => {
   // console.log("formData => ", formData);
 
   return (
-    <section className="grid place-items-center min-h-screen w-full">
+    <section className="grid place-items-center min-h-screen w-full text-slate-100">
       <div className="max-w-[600px] p-4 md:p-10 border border-gray-300/10">
         <div className="mb-6">
           <h1 className="text-4xl font-extrabold font-inter text-blue-800">

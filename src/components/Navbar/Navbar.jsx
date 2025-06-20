@@ -7,6 +7,7 @@ import Button from "../Button";
 import { getSocket } from "../../context/SocketProvider";
 import { IoIosLogOut, IoIosSearch } from "react-icons/io";
 import SearchUsers from "./SearchUsers";
+import TextHighlighter from "../TextHighlighter";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -22,9 +23,15 @@ const Navbar = () => {
 
   return (
     <nav className="rounded-t-lg max-w-[900px] w-full flex justify-between items-start border border-gray-600/30 p-2">
-      <h1 className="text-4xl font-extrabold font-inter uppercase">
+      {/* <h1 className="text-4xl font-extrabold font-inter uppercase">
         Chit Chat
-      </h1>
+      </h1> */}
+
+      <TextHighlighter
+        text={"Chit Chat"}
+        tag={"h1"}
+        customClass={"!text-4xl !font-[900]"}
+      />
 
       <div className="relative flex gap-2 items-center flex-wrap">
         <div className="">

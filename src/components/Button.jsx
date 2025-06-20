@@ -8,7 +8,7 @@ const Button = ({ onClick, disabled, customClass, text, children, title }) => {
       title={title}
       className={`${
         children && "flex"
-      } items-center hover:scale-95 transition-all duration-100 rounded-md bg-blue-800 text-white ${customClass}`}
+      } items-center hover:scale-95 transition-all duration-100 rounded-md bg-[#145782] text-white ${customClass}`}
     >
       {children ? (
         <>

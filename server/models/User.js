@@ -1,4 +1,4 @@
-import mongoose, { Schema, Types, model } from "mongoose";
+import mongoose, { Schema, model } from "mongoose";
 import bcrypt from "bcrypt";
 
 const userSchema = new Schema(
@@ -28,7 +28,7 @@ const userSchema = new Schema(
     },
     friends: [
       {
-        type: Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "User",
       },
     ],

@@ -7,6 +7,7 @@ import { GiCrossMark } from "react-icons/gi";
 import { toast } from "react-hot-toast";
 import { signupUser } from "../services/operations/authAPI";
 import Button from "../components/Button";
+import TextHighlighter from "../components/TextHighlighter";
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -24,10 +25,16 @@ const Signup = () => {
     e.preventDefault();
     const strongPasswordPattern =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{6,}$/;
+
     if (!strongPasswordPattern.test(signupData.password.trim())) {
       toast.error("Strong Password Required");
       return;
     }
+
+    if (!signupData.profile) {
+      return toast.error("Profile pic is required");
+    }
+
     const formData = new FormData();
     formData.append("email", signupData.email);
     formData.append("password", signupData.password.trim());
@@ -70,11 +77,16 @@ const Signup = () => {
   };
 
   return (
-    <div className="h-screen grid place-items-center p-2">
+    <div className="h-screen grid place-items-center p-2 text-slate-100">
       <div
         className={`animate rounded-lg px-4 py-6  max-w-[400px] w-full overflow-hidden border border-gray-600/30`}
       >
-        <h3 className="text-3xl font-bold  text-center">Signup</h3>
+        {/* <h3 className="text-3xl font-bold  text-center">Signup</h3> */}
+        <TextHighlighter
+          text={"Signup"}
+          tag={"h2"}
+          customClass={"text-3xl font-bold  text-center"}
+        />
         <form
           className="animate flex flex-col gap-6 mt-8 items-center"
           onSubmit={handleCreateAccount}
@@ -119,11 +131,11 @@ const Signup = () => {
             <input
               type="file"
               name="profile"
+              accept="image/*"
               id="profile"
               className="hidden"
               //   key={fileInputKey}
               onChange={handleProfile}
-              required
             />
           </div>
           <div className="flex flex-col w-full">

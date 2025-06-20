@@ -13,6 +13,7 @@ import {
 } from "./constants/events.js";
 import userRoutes from "./routes/UserRoute.js";
 import chatRoutes from "./routes/ChatRoute.js";
+import groupRoutes from "./routes/GroupRoute.js";
 import { cloudinaryConnect } from "./config/cloudinary.js";
 import cookieParser from "cookie-parser";
 import { socketAuthenticator } from "./middleware/auth.js";
@@ -48,8 +49,11 @@ app.use(express.json());
 const userSocketIDs = new Map();
 const onlineUsers = new Set();
 
+app.set("userSocketIDs", userSocketIDs);
+
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/chat", chatRoutes);
+app.use("/api/v1/group", groupRoutes);
 
 app.get("/", (req, res) => {
   res.send("<h1>Chat App</h1>");
@@ -74,7 +78,7 @@ io.on("connection", (socket) => {
 
   socket.on(NEW_MESSAGE, async ({ sender, receiver, content }) => {
     try {
-      console.log("data ==> ", sender, receiver, content);
+      // console.log("data ==> ", sender, receiver, content);
       io.to(userSocketIDs.get(receiver)).emit(NEW_MESSAGE, {
         sender,
         receiver,
@@ -108,12 +112,12 @@ io.on("connection", (socket) => {
   });
 
   socket.on(FRIEND_REQUEST, ({ requestedUser, notificationId, request }) => {
-    console.log("requestedUser, request => ", requestedUser, request);
+    // console.log("requestedUser, request => ", requestedUser, request);
     socketFriendRequestHandler(requestedUser, notificationId, request, userId);
   });
 
   socket.on(READ_NOTIFICATION, async ({ notificationId }) => {
-    console.log("notificationId => ", notificationId);
+    // console.log("notificationId => ", notificationId);
     const updatedNotification = await Notification.findByIdAndUpdate(
       notificationId,
       {
