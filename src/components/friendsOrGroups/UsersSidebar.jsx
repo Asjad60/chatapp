@@ -15,18 +15,15 @@ const UsersSidebar = () => {
   const socket = getSocket();
   const navigate = useNavigate();
 
-  const handleUserStatus = useCallback(
-    (data) => {
-      setFriends((prevFriends) =>
-        prevFriends?.map((friend) =>
-          data.includes(friend._id)
-            ? { ...friend, status: "online" }
-            : { ...friend, status: "offline" }
-        )
-      );
-    },
-    [friends]
-  );
+  const handleUserStatus = useCallback((data) => {
+    setFriends((prevFriends) =>
+      prevFriends?.map((friend) =>
+        data.includes(friend._id)
+          ? { ...friend, status: "online" }
+          : { ...friend, status: "offline" }
+      )
+    );
+  }, []);
 
   const fetchMyFriends = async () => {
     setLoading(true);
@@ -45,7 +42,18 @@ const UsersSidebar = () => {
     fetchMyFriends();
   }, []);
 
+  const requestStatus = () => {
+    setTimeout(() => {
+      socket.emit("user_status");
+    }, 100);
+  };
+
   useEffect(() => {
+    if (socket.connected) {
+      requestStatus();
+    }
+
+    socket.on("connect", requestStatus);
     socket.on("user_status", handleUserStatus);
     socket.on("refetch_friends", () => fetchMyFriends());
 
@@ -53,7 +61,7 @@ const UsersSidebar = () => {
       socket.off("user_status", handleUserStatus);
       socket.off("refetch_friends");
     };
-  }, [socket, handleUserStatus]);
+  }, [socket, handleUserStatus, requestStatus]);
 
   return (
     <aside className=" sm:max-w-[200px] sm:border-r border-gray-600/30 w-full overflow-hidden sm:static absolute inset-0 z-[11] bg-slate-100">

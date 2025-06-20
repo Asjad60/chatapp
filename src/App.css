@@ -24,7 +24,7 @@
 }
 
 .form-style {
-  @apply border border-gray-300 text-black rounded-lg w-full p-3 text-[16px] leading-[24px] outline-none;
+  @apply border border-[#29536ec6] bg-[#29536e5d] rounded-lg w-full p-3 text-[16px] leading-[24px] outline-none;
 }
 
 .btn {

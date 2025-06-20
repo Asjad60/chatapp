@@ -70,8 +70,9 @@ const Wrapper = () => {
   ]);
 
   useEffect(() => {
-    socket.connect();
-    socket.emit("user_status");
+    if (!socket.connected) {
+      socket.connect();
+    }
     fetchNotifications();
   }, []);
 
