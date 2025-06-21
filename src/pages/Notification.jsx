@@ -15,12 +15,12 @@ const Notification = () => {
     socket.emit("read_notification", { notificationId });
   };
 
-  console.log("notifications => ", notifications);
+  // console.log("notifications => ", notifications);
 
   return (
-    <div>
+    <div className="text-slate-100">
       {notifications?.length > 0 ? (
-        <div className="p-6 w-full flex flex-col gap-1">
+        <div className="p-6 w-full flex flex-col gap-1 divide-y divide-gray-400/35">
           {notifications?.map((notif) => (
             <div
               key={notif._id}
