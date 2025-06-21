@@ -79,6 +79,11 @@ const Chat = () => {
     const result = await getAllChats(id);
     if (result) {
       setMessages(result.messages);
+      setTimeout(() => {
+        if (ref.current) {
+          ref.current.scrollIntoView();
+        }
+      }, 50);
     }
     setLoading(false);
   };

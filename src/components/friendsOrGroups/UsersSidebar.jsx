@@ -64,7 +64,7 @@ const UsersSidebar = () => {
   }, [socket, handleUserStatus, requestStatus]);
 
   return (
-    <aside className=" sm:max-w-[200px] sm:border-r border-gray-600/30 w-full overflow-hidden sm:static absolute inset-0 z-[11] bg-slate-100">
+    <aside className=" sm:max-w-[200px] sm:border-r border-gray-600/30 w-full overflow-hidden sm:static absolute inset-0 z-[11] bg-gradient-to-br from-[#70838e] via-slate-400 to-[#0c507a]">
       {loading ? (
         <div className="w-full h-full flex justify-center items-center">
           <div className="loader"></div>

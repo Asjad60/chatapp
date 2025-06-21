@@ -82,7 +82,7 @@ const Wrapper = () => {
       <div className="relative overflow-hidden max-w-[900px] w-full min-h-[75vh] border border-gray-600/30 rounded-b-lg flex z-10">
         <UsersSidebar />
         <div
-          className={`w-full h-full ${
+          className={`w-full h-full bg-transparent ${
             location.pathname !== "/" ? "z-[20]" : "z-[5]"
           } absolute sm:static inset-0 bg-slate-100`}
         >

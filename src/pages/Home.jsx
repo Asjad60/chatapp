@@ -1,5 +1,4 @@
-import React from "react";
-import logo from "../assets/logo.png";
+import logo from "../assets/logo-1.png";
 
 const Home = () => {
   return (
@@ -11,7 +10,7 @@ const Home = () => {
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
           backgroundSize: "cover",
-          filter: "saturate(0) opacity(10%)",
+          filter: "opacity(0.6)",
         }}
       ></div>
     </section>

@@ -85,9 +85,10 @@ const loginUser = async (req, res) => {
     try {
       if (await bcrypt.compare(password, user.password)) {
         const token = jwt.sign(payload, process.env.JWT_SECRET, {
-          expiresIn: "72h",
+          expiresIn: "7d",
         });
         user.token = token;
+        await user.save();
         user.password = undefined;
         let options = {
           expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
