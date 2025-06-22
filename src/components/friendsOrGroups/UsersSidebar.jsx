@@ -1,13 +1,15 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { getMyFriends } from "../../services/operations/userAPI";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { getContextData } from "../../context/AuthProvider";
 import { getSocket } from "../../context/SocketProvider";
 import { useSelector } from "react-redux";
 import FriendsLink from "./FriendsLink";
+import { getMyGroups } from "../../services/operations/groupAPI";
 
 const UsersSidebar = () => {
   const [friends, setFriends] = useState([]);
+  const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(false);
   const { id } = useParams();
   const { newMessageAlert } = useSelector((state) => state.chat);
@@ -40,7 +42,29 @@ const UsersSidebar = () => {
   }, [newMessageAlert]);
 
   useEffect(() => {
-    fetchMyFriends();
+    const fetchInitialData = async () => {
+      setLoading(true);
+      try {
+        const [friendsResult, groupsResult] = await Promise.all([
+          getMyFriends(token, navigate, setToken),
+          getMyGroups(),
+        ]);
+
+        if (friendsResult) {
+          setFriends(friendsResult.friends);
+        }
+
+        if (groupsResult) {
+          setGroups(groupsResult.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch initial data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInitialData();
   }, []);
 
   const requestStatus = () => {
@@ -71,33 +95,66 @@ const UsersSidebar = () => {
           <div className="loader"></div>
         </div>
       ) : (
-        <div className=" w-full flex flex-col gap-4 ">
-          {/* {friends?.length > 0 ? ( */}
-          {friends
-            ?.sort((a, b) =>
-              a._id.toString() === lastChatWith?.toString() &&
-              b._id.toString() !== lastChatWith?.toString()
-                ? -1
-                : 1
-            )
-            ?.map((friend) => {
-              const newMessageAlert2 = newMessageAlert?.find(
-                (item) => item.chatId?.toString() === friend._id?.toString()
-              );
-              return (
-                <FriendsLink
-                  key={friend._id}
-                  id={id}
-                  friend={friend}
-                  newMessageAlert={newMessageAlert2}
-                />
-              );
-            })}
-          {/* ) : (
-            <h2 className="mx-auto mt-2 font-inter font-bold text-5xl ml-3 text-black/20 -rotate-45">
-              You Don't Have Friends
-            </h2>
-          )} */}
+        <div className=" w-full flex flex-col gap-4 overflow-auto">
+          {friends?.length > 0 ? (
+            friends
+              ?.sort((a, b) =>
+                a._id.toString() === lastChatWith?.toString() &&
+                b._id.toString() !== lastChatWith?.toString()
+                  ? -1
+                  : 1
+              )
+              ?.map((friend) => {
+                const newMessageAlert2 = newMessageAlert?.find(
+                  (item) => item.chatId?.toString() === friend._id?.toString()
+                );
+                return (
+                  <FriendsLink
+                    key={friend._id}
+                    id={id}
+                    friend={friend}
+                    newMessageAlert={newMessageAlert2}
+                  />
+                );
+              })
+          ) : (
+            <p className="mx-auto mt-2 font-inter font-bold text-5xl ml-3 text-black/20 -rotate-45">
+              No friends found
+            </p>
+          )}
+
+          <h4 className="text-xl font-edu-sa font-semibold px-3 border-t border-slate-300/70">
+            Groups
+          </h4>
+
+          {groups?.length > 0 ? (
+            groups.map((group) => (
+              <Link
+                to={`/chat/${group._id}?groupname=${encodeURIComponent(
+                  group.groupName
+                )}`}
+                key={group._id}
+                className="text-white px-2"
+              >
+                <div className="flex gap-3">
+                  {group?.groupProfile ? (
+                    <img
+                      src={group?.groupProfile}
+                      alt="Group-Profile"
+                      className="object-cover rounded-full w-[40px] h-[40px]"
+                    />
+                  ) : (
+                    <div className="capitalize p-2 rounded-full bg-[#255487] w-[40px] h-[40px] flex justify-center items-center">
+                      {group?.groupName[0]}
+                    </div>
+                  )}
+                  <span>{group?.groupName}</span>
+                </div>
+              </Link>
+            ))
+          ) : (
+            <p className="text-center text-white">No groups found.</p>
+          )}
         </div>
       )}
     </aside>

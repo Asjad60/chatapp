@@ -22,3 +22,18 @@ export const createGroup = async (formData) => {
   }
   toast.dismiss(toastId);
 };
+
+export const getMyGroups = async () => {
+  let res = null;
+  try {
+    res = await apiConnector(groupEndpoints.GET_MY_GROUPS_API);
+
+    if (!res.success) {
+      throw new Error(res.message);
+    }
+  } catch (error) {
+    console.log("get my group error: ", error);
+  }
+
+  return res;
+};
