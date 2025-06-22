@@ -26,6 +26,9 @@ const notificationSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    type: {
+      type: String,
+    },
     status: {
       type: String,
       default: "PENDING",

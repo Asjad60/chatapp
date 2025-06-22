@@ -4,9 +4,11 @@ import ApiError from "../utils/ApiError.js";
 import { uploadFileToCloud } from "../utils/uploadImgToCloud.js";
 
 export const createGroup = asyncHandler(async (req, res) => {
-  const { groupName, membersId = [] } = req.body;
+  const { groupName, membersId: memberIds } = req.body;
   const groupProfile = req?.file?.path;
   const userId = req.user.id;
+
+  let membersId = JSON.parse(memberIds);
 
   if (!groupName || !membersId.length) {
     throw new ApiError("Group name and Members is required", 400);
