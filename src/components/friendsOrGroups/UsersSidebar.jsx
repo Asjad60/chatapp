@@ -16,9 +16,10 @@ const UsersSidebar = () => {
   const navigate = useNavigate();
 
   const handleUserStatus = useCallback((data) => {
+    const newData = new Set(data);
     setFriends((prevFriends) =>
       prevFriends?.map((friend) =>
-        data.includes(friend._id)
+        newData.has(friend._id)
           ? { ...friend, status: "online" }
           : { ...friend, status: "offline" }
       )

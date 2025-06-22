@@ -20,3 +20,9 @@ export const chatEndpoints = {
   GET_ALL_CHATS_API: `${BASE_URL}/chat/getAllChats`,
   SEND_ATTACHMENTS: `${BASE_URL}/chat/sendAttachments`,
 };
+
+export const groupEndpoints = {
+  CREATE_GROUP_API: `${BASE_URL}/group/createGroup`,
+  GET_MY_GROUPS_API: `${BASE_URL}/group/getAllGroups`,
+  ADD_OR_REMOVE_MEMBERS_API: `${BASE_URL}/group/addOrRemoveMembers`, //groupId params
+};

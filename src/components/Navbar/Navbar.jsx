@@ -8,10 +8,13 @@ import { getSocket } from "../../context/SocketProvider";
 import { IoIosLogOut, IoIosSearch } from "react-icons/io";
 import SearchUsers from "./SearchUsers";
 import TextHighlighter from "../TextHighlighter";
+import { GrGroup } from "react-icons/gr";
+import CreateGroup from "./group/CreateGroup";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const [searchUser, setSearchUser] = useState(false);
+  const [isCreatingGroup, setIsCreatingGroup] = useState(false);
   const [users, setUsers] = useState([]);
   const { token, setToken, user, notifications } = getContextData();
   const socket = getSocket();
@@ -22,7 +25,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="rounded-t-lg max-w-[900px] w-full flex justify-between items-start border border-gray-600/30 p-2">
+    <nav className="rounded-t-lg relative max-w-[900px] w-full flex justify-between items-start border border-gray-600/30 p-2">
       {/* <h1 className="text-4xl font-extrabold font-inter uppercase">
         Chit Chat
       </h1> */}
@@ -33,10 +36,13 @@ const Navbar = () => {
         customClass={"!text-4xl !font-[900]"}
       />
 
-      <div className="relative flex gap-2 items-center flex-wrap">
-        <div className="">
+      <div className=" flex gap-2 items-center flex-wrap">
+        <div className="relative">
           <Button
-            onClick={() => setSearchUser(true)}
+            onClick={() => {
+              setSearchUser(true);
+              if (isCreatingGroup) setIsCreatingGroup(false);
+            }}
             customClass={"p-2"}
             title="Search User"
           >
@@ -63,6 +69,24 @@ const Navbar = () => {
             )}
           </Link>
         </Button>
+
+        <div>
+          <Button
+            title={"Create Group"}
+            customClass={"p-2 text-slate-300"}
+            onClick={() => {
+              setIsCreatingGroup((prev) => !prev);
+              if (searchUser) setSearchUser(false);
+            }}
+          >
+            <GrGroup size={25} />
+          </Button>
+
+          {isCreatingGroup && (
+            <CreateGroup setIsCreatingGroup={setIsCreatingGroup} />
+          )}
+        </div>
+
         <Button customClass="p-2" onClick={handleLogout} title="Logout">
           <IoIosLogOut size={25} />
         </Button>
