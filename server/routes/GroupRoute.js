@@ -6,6 +6,7 @@ import {
   createGroup,
   getAllMyGroups,
   getGroupDetails,
+  getGroupMessages,
 } from "../controller/Group.js";
 const router = express.Router();
 
@@ -18,5 +19,6 @@ router.post(
 router.post("/addOrRemoveMembers/:groupId", isAuthenticated, addOrRemoveMember);
 router.get("/getAllGroups", isAuthenticated, getAllMyGroups);
 router.get("/getGroupDetails/:groupId", isAuthenticated, getGroupDetails);
+router.get("/getGroupMessages/:groupId", isAuthenticated, getGroupMessages);
 
 export default router;

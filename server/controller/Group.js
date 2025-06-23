@@ -131,3 +131,41 @@ export const getGroupDetails = asyncHandler(async (req, res) => {
     data: group,
   });
 });
+
+export const getGroupMessages = asyncHandler(async (req, res) => {
+  const { groupId } = req.params;
+  const { page = 1, limit = 50 } = req.query;
+  const userId = req.user.id;
+  const skip = (page - 1) * limit;
+
+  const group = await Group.findById(groupId)
+    .populate({
+      path: "messages",
+      populate: { path: "sender receiver", select: "username image" },
+    })
+    .skip(skip)
+    .limit(parseInt(limit));
+
+  if (!group) {
+    throw new ApiError("Group not found", 404);
+  }
+
+  if (!group.members.includes(userId)) {
+    throw new ApiError("You are not a member of this group", 403);
+  }
+
+  const totalMessages = group.messages.length;
+  const totalPages = Math.ceil(totalMessages / limit);
+
+  res.status(200).json({
+    success: true,
+    messages: group.messages,
+    pagination: {
+      currentPage: parseInt(page),
+      totalPages,
+      totalMessages,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+    },
+  });
+});
