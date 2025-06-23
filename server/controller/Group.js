@@ -108,3 +108,26 @@ export const addOrRemoveMember = asyncHandler(async (req, res) => {
     data: updatedMembers.members,
   });
 });
+
+export const getGroupDetails = asyncHandler(async (req, res) => {
+  const { groupId } = req.params;
+
+  if (!groupId) {
+    throw new ApiError("groupId is required", 400);
+  }
+
+  const group = await Group.findById(groupId).populate(
+    "admin members",
+    "username image"
+  );
+
+  if (!group) {
+    throw new ApiError("invalid group or group is deleted", 404);
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Group details Found",
+    data: group,
+  });
+});
