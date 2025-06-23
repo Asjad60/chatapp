@@ -25,4 +25,6 @@ export const groupEndpoints = {
   CREATE_GROUP_API: `${BASE_URL}/group/createGroup`,
   GET_MY_GROUPS_API: `${BASE_URL}/group/getAllGroups`,
   ADD_OR_REMOVE_MEMBERS_API: `${BASE_URL}/group/addOrRemoveMembers`, //groupId params
+  GET_GROUP_DETAILS: `${BASE_URL}/group/getGroupDetails`, //groupId params
+  GET_GROUP_MESSAGES: `${BASE_URL}/group/getGroupMessages`, //groupId params
 };

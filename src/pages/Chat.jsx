@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { getContextData } from "../context/AuthProvider";
 import { IoIosSend } from "react-icons/io";
 import ChatList from "../components/core/Chat/ChatList";
@@ -9,7 +9,8 @@ import { getSocket } from "../context/SocketProvider";
 import SendAttchments from "../components/core/Chat/SendAttchments";
 import { useDispatch } from "react-redux";
 import { removeNewMessagesAlert } from "../slices/chatSlice";
-import FriendProfile from "../components/core/Chat/FriendProfile";
+import ChatProfileHeader from "../components/core/Chat/ChatProfileHeader";
+import { fetchGroupMessages } from "../services/operations/groupAPI";
 
 const bgArray = [
   "https://i.pinimg.com/736x/f0/91/67/f09167145c41fcd5a496784b9f8bf326.jpg",
@@ -33,6 +34,10 @@ const Chat = () => {
       ? JSON.parse(localStorage.getItem("bg-wallpaper"))
       : 0
   );
+  const [searchParams] = useSearchParams();
+  const isGroupName = searchParams.has("groupname");
+
+  const containerRef = useRef();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -76,16 +81,29 @@ const Chat = () => {
 
   const fetchChats = async () => {
     setLoading(true);
-    const result = await getAllChats(id);
-    if (result) {
-      setMessages(result.messages);
-      setTimeout(() => {
-        if (ref.current) {
-          ref.current.scrollIntoView();
+
+    try {
+      if (!isGroupName) {
+        const result = await getAllChats(id);
+        if (result) {
+          setMessages(result.messages);
+          setTimeout(() => {
+            if (ref.current) {
+              ref.current.scrollIntoView();
+            }
+          }, 50);
         }
-      }, 50);
+      } else {
+        const result = await fetchGroupMessages(id);
+        if (result) {
+          setMessages(result.messages);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -115,12 +133,18 @@ const Chat = () => {
   return (
     <section
       className="w-full h-full flex flex-col  bg-cover bg-center bg-no-repeat "
+      ref={containerRef}
       style={{
         backgroundImage: `url(${bgArray[bgImageIndex]})`,
       }}
     >
       <div className="bg-[rgba(0,0,0,0.2)] relative h-full pb-1 ">
-        <FriendProfile setBgImageIndex={setBgImageIndex} bgArray={bgArray} />
+        <ChatProfileHeader
+          setBgImageIndex={setBgImageIndex}
+          bgArray={bgArray}
+          ref={containerRef}
+          userId={user._id}
+        />
 
         <div className="sm:min-h-[calc(275px-115px)] h-[calc(75vh-116px)] pb-1 overflow-y-auto pt-1">
           {!loading ? (

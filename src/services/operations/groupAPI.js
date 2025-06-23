@@ -37,3 +37,35 @@ export const getMyGroups = async () => {
 
   return res;
 };
+
+export const fetchGroupDetails = async (groupId) => {
+  let res = null;
+  try {
+    res = await apiConnector(`${groupEndpoints.GET_GROUP_DETAILS}/${groupId}`);
+
+    if (!res.success) {
+      throw new Error(res.message);
+    }
+  } catch (error) {
+    console.log("get group details error: ", error);
+  }
+
+  return res;
+};
+
+export const fetchGroupMessages = async (groupId, page = 1, limit = 50) => {
+  let res = null;
+  try {
+    res = await apiConnector(
+      `${groupEndpoints.GET_GROUP_MESSAGES}/${groupId}?page=${page}&limit=${limit}`
+    );
+
+    if (!res.success) {
+      throw new Error(res.message);
+    }
+  } catch (error) {
+    console.log("get group messages error: ", error);
+  }
+
+  return res;
+};
