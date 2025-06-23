@@ -3,9 +3,11 @@ import mongoose, { Schema } from "mongoose";
 const notificationSchema = new Schema(
   {
     userId: {
+      // recipient
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
+      index: true,
     },
     senderId: {
       type: Schema.Types.ObjectId,
@@ -15,11 +17,9 @@ const notificationSchema = new Schema(
     senderMessage: {
       imgURI: {
         type: String,
-        required: true,
       },
       title: {
         type: String,
-        required: true,
       },
     },
     read: {
@@ -28,6 +28,7 @@ const notificationSchema = new Schema(
     },
     type: {
       type: String,
+      enum: ["MESSAGE", "REQUEST"],
     },
     status: {
       type: String,
@@ -37,6 +38,8 @@ const notificationSchema = new Schema(
   },
   { timestamps: true }
 );
+
+notificationSchema.index({ userId: 1, read: 1 });
 
 export const Notification =
   mongoose.models.Notification ||
