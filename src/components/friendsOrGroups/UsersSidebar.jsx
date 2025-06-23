@@ -95,7 +95,7 @@ const UsersSidebar = () => {
           <div className="loader"></div>
         </div>
       ) : (
-        <div className=" w-full flex flex-col gap-4 overflow-auto">
+        <div className=" w-full flex flex-col gap-4 overflow-y-auto">
           {friends?.length > 0 ? (
             friends
               ?.sort((a, b) =>
@@ -134,9 +134,11 @@ const UsersSidebar = () => {
                   group.groupName
                 )}`}
                 key={group._id}
-                className="text-white px-2"
+                className={`text-white px-2 ${
+                  id === group._id && "bg-black/20"
+                }`}
               >
-                <div className="flex gap-3">
+                <div className="flex gap-3 items-center py-2">
                   {group?.groupProfile ? (
                     <img
                       src={group?.groupProfile}
