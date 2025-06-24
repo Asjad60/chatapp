@@ -12,9 +12,13 @@ const ChatProfileHeader = forwardRef(
     const imageUrl = searchParams.get("imageUrl");
     const isUsernameParam = searchParams.has("username");
     const { id: groupId } = useParams();
+
     const [groupDetails, setGroupDetails] = useState(null);
+    const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+    const [containerWidth, setContainerWidth] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
     const [imagePos, setImagePos] = useState(null);
+
     const imageRef = useRef();
 
     const containerVariants = {
@@ -66,6 +70,24 @@ const ChatProfileHeader = forwardRef(
       }
     }, [groupId]);
 
+    useEffect(() => {
+      const handleResize = () => {
+        setScreenWidth(window.innerWidth);
+        if (containerRef.current) {
+          setContainerWidth(containerRef.current.offsetWidth);
+        }
+      };
+
+      handleResize(); // initial run
+
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+    const isMobile = screenWidth <= 480;
+    const animatedSize = isMobile ? 200 : 300;
+    const left = containerWidth / 2 - animatedSize / 2;
+
     // console.log("groupDetails: ", groupDetails);
 
     return (
@@ -86,7 +108,7 @@ const ChatProfileHeader = forwardRef(
         <AnimatePresence>
           {isOpen && imagePos && (
             <motion.div
-              className="absolute inset-0 bg-black text-slate-100 bg-opacity-60 backdrop-blur-sm z-50 flex flex-col"
+              className="absolute inset-0 bg-black text-slate-100 bg-opacity-60 backdrop-blur-sm z-50 flex flex-col overflow-y-auto"
               onClick={closeZoom}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -104,9 +126,9 @@ const ChatProfileHeader = forwardRef(
                 }}
                 animate={{
                   //   top: imagePos.containerHeight / 2 - 150, // center vertically in parent
-                  left: imagePos.containerWidth / 2 - 150, // center horizontally in parent
-                  width: 300,
-                  height: 300,
+                  left: left, // center horizontally in parent
+                  width: animatedSize,
+                  height: animatedSize,
                   borderRadius: "9999px",
                 }}
                 exit={{
@@ -122,7 +144,7 @@ const ChatProfileHeader = forwardRef(
               />
 
               {groupDetails && !isUsernameParam && (
-                <div className="mt-[22rem]">
+                <div className="mt-[16rem] min-[480px]:mt-[22rem]">
                   <div>
                     <h3 className={"text-2xl text-center  font-bold"}>
                       {groupDetails?.groupName}
