@@ -4,10 +4,14 @@ import toast from "react-hot-toast";
 import Button from "../../Button";
 import { GrGallery } from "react-icons/gr";
 import { IoIosSend } from "react-icons/io";
+import { useSearchParams } from "react-router-dom";
 
 const SendAttchments = ({ setLastChatWith, id }) => {
   const [album, setAlbum] = useState([]);
   const [previewImg, setPreviewImg] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [searchParams] = useSearchParams();
+  const groupName = searchParams.has("groupname");
 
   const imageRef = useRef(null);
 
@@ -24,9 +28,21 @@ const SendAttchments = ({ setLastChatWith, id }) => {
     for (const file of album) {
       formData.append("files", file);
     }
-    formData.append("receiverId", id);
-    sendAttachments(formData, setAlbum, setPreviewImg);
-    setLastChatWith(id);
+    if (groupName) {
+      formData.append("groupId", id);
+    } else {
+      formData.append("receiverId", id);
+    }
+
+    try {
+      setLoading(true);
+      sendAttachments(formData, setAlbum, setPreviewImg);
+      setLastChatWith(id);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChangeInputFile = (e) => {
@@ -80,6 +96,7 @@ const SendAttchments = ({ setLastChatWith, id }) => {
             <Button
               customClass={"p-2 rounded-full"}
               onClick={handleSendAttachments}
+              disabled={loading}
             >
               <IoIosSend size={25} />
             </Button>

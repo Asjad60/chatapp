@@ -1,6 +1,9 @@
 import { Server } from "socket.io";
 import {
   FRIEND_REQUEST,
+  GROUP_MESSAGE,
+  JOIN_ROOM,
+  LEAVE_ROOM,
   MESSAGE_SEEN,
   NEW_MESSAGE,
   NEW_MESSAGE_ALERT,
@@ -11,6 +14,9 @@ import cookieParser from "cookie-parser";
 import { Message } from "../models/Mesaage.js";
 import { socketFriendRequestHandler } from "../controller/User.js";
 import { Notification } from "../models/Notification.js";
+import { User } from "../models/User.js";
+import Group from "../models/Group.js";
+import ApiError from "../utils/ApiError.js";
 
 export const initializeSocket = async (server, app) => {
   const io = new Server(server, {
@@ -36,7 +42,7 @@ export const initializeSocket = async (server, app) => {
 
   io.on("connection", (socket) => {
     const userId = socket.user.id;
-    console.log("User Connected socketid => ", socket.id);
+    console.log("User Connected socketid => ", socket.user.email, socket.id);
 
     userSocketIDs.set(userId.toString(), socket.id);
     onlineUsers.add(userId.toString());
@@ -103,6 +109,55 @@ export const initializeSocket = async (server, app) => {
       io.to(userSocketIDs.get(userId)).emit(READ_NOTIFICATION, {
         updatedNotification,
       });
+    });
+
+    socket.on(JOIN_ROOM, async ({ groupId }) => {
+      socket.join(groupId);
+    });
+
+    socket.on(LEAVE_ROOM, async ({ groupId }) => {
+      socket.leave(groupId);
+    });
+
+    socket.on(GROUP_MESSAGE, async (data) => {
+      const { groupId, message } = data;
+      console.log("GROUP_MESSAGE: ", groupId, message);
+
+      try {
+        const group = await Group.findById(groupId);
+
+        if (!group) {
+          throw new ApiError("gorup not found", 404);
+        }
+
+        const newMessage = await Message.create({
+          sender: userId,
+          group: groupId,
+          content: message,
+          isDelivered: true,
+        });
+
+        const populatedMessage = await Message.findById(
+          newMessage._id
+        ).populate("sender", "username image");
+
+        if (group.members.some((member) => member.equals(userId))) {
+          console.log("inside the if of group message");
+          io.to(groupId).emit(NEW_MESSAGE, populatedMessage);
+
+          group.messages.push(newMessage._id);
+
+          await group.save();
+        } else {
+          throw new ApiError("Unauthorized: Not a group member", 403);
+        }
+      } catch (error) {
+        console.log("Something went wrong at group message: ", error);
+        socket.emit("ERROR", {
+          message: error.message || "Something went wrong at group message",
+          code: error.statusCode || 500,
+        });
+      }
     });
 
     socket.on("disconnect", () => {

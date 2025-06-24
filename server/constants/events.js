@@ -6,6 +6,9 @@ const MESSAGE_SEEN = "message_seen";
 const NEW_MESSAGE_ALERT = "new_message_alert";
 const REFETCH_FRINEDS = "refetch_friends";
 const READ_NOTIFICATION = "read_notification";
+const JOIN_ROOM = "join_room";
+const LEAVE_ROOM = "leave_room";
+const GROUP_MESSAGE = "group_message";
 export {
   NEW_MESSAGE,
   FRIEND_REQUEST,
@@ -15,4 +18,7 @@ export {
   NEW_MESSAGE_ALERT,
   REFETCH_FRINEDS,
   READ_NOTIFICATION,
+  JOIN_ROOM,
+  LEAVE_ROOM,
+  GROUP_MESSAGE,
 };

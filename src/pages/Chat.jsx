@@ -37,28 +37,40 @@ const Chat = () => {
   const [searchParams] = useSearchParams();
   const isGroupName = searchParams.has("groupname");
 
-  const containerRef = useRef();
+  const containerRef = useRef(null);
+  const inputRef = useRef(null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (content.trim()) {
-      const newMessage = {
-        sender: user._id,
-        receiver: id,
-        content: content.trim(),
-      };
-      socket.emit("new_message", newMessage);
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
-      setContent("");
-      setLastChatWith(id);
+      if (!isGroupName) {
+        const newMessage = {
+          sender: user._id,
+          receiver: id,
+          content: content.trim(),
+        };
+        socket.emit("new_message", newMessage);
+        setMessages((prevMessages) => [...prevMessages, newMessage]);
+        setContent("");
+        setLastChatWith(id);
+      } else {
+        socket.emit("group_message", { groupId: id, message: content });
+        setContent("");
+        setLastChatWith(id);
+      }
     }
   };
 
   const handleNewMessage = useCallback(
     (data) => {
-      if (data.receiver === id || data.sender === id) {
+      console.log(data);
+      if (!isGroupName) {
+        if (data.receiver === id || data.sender === id) {
+          setMessages((prevMessages) => [...prevMessages, data]);
+          socket.emit("message_seen", { senderId: user._id, receiverId: id });
+        }
+      } else if (isGroupName && data.group === id) {
         setMessages((prevMessages) => [...prevMessages, data]);
-        socket.emit("message_seen", { senderId: user._id, receiverId: id });
       }
     },
     [messages]
@@ -94,6 +106,7 @@ const Chat = () => {
           }, 50);
         }
       } else {
+        socket.emit("join_room", { groupId: id });
         const result = await fetchGroupMessages(id);
         if (result) {
           setMessages(result.messages);
@@ -111,6 +124,7 @@ const Chat = () => {
       fetchChats();
       dispatch(removeNewMessagesAlert(id));
       socket.emit("message_seen", { senderId: user._id, receiverId: id });
+      inputRef.current.focus();
     }
   }, [id]);
 
@@ -146,7 +160,7 @@ const Chat = () => {
           userId={user._id}
         />
 
-        <div className="sm:min-h-[calc(275px-115px)] h-[calc(75vh-116px)] pb-1 overflow-y-auto pt-1">
+        <div className="h-[calc(75vh-135px)] pb-1 overflow-y-auto pt-1">
           {!loading ? (
             <ChatList messages={messages} userId={user._id} />
           ) : (
@@ -168,6 +182,7 @@ const Chat = () => {
                 placeholder="Enter Message"
                 value={content}
                 autoComplete="off"
+                ref={inputRef}
               />
               <Button type="submit" customClass={"p-2 p rounded-full"}>
                 <IoIosSend size={25} />

@@ -2,6 +2,7 @@ import { NEW_MESSAGE, NEW_MESSAGE_ALERT } from "../constants/events.js";
 import { Message } from "../models/Mesaage.js";
 import { uploadFileToCloud } from "../utils/uploadImgToCloud.js";
 import { User } from "../models/User.js";
+import Group from "../models/Group.js";
 
 export const getAllChats = async (req, res) => {
   try {
@@ -44,7 +45,7 @@ export const sendAttachments = async (req, res) => {
     const io = req.app.get("io");
 
     const userId = req.user.id;
-    const { receiverId } = req.body;
+    const { receiverId, groupId } = req.body;
     const files = req.files;
     // console.log("files => ", files);
     if (!files) {
@@ -73,31 +74,50 @@ export const sendAttachments = async (req, res) => {
       });
     });
 
-    console.log("uploadFileToCloud => ", attachments);
+    // console.log("uploadFileToCloud => ", attachments);
     const cloudURLnPublicId = attachments.map((file) => {
       return { url: file.secure_url, public_id: file.public_id };
     });
 
-    const messageForRealTime = {
-      content: "",
-      attachments: cloudURLnPublicId,
-      sender: userId,
-      receiver: receiverId,
-    };
-
-    io.to(userSocketIDs.get(userId)).emit(NEW_MESSAGE, messageForRealTime);
-    io.to(userSocketIDs.get(receiverId)).emit(NEW_MESSAGE, messageForRealTime);
-    io.to(userSocketIDs.get(receiverId)).emit(NEW_MESSAGE_ALERT, {
-      sender: userId,
-    });
-
-    const message = await Message.create({
+    const messageData = {
       content: "",
       sender: userId,
-      receiver: receiverId,
       attachments: cloudURLnPublicId,
       isDelivered: true,
-    });
+    };
+
+    if (receiverId) {
+      messageData.receiver = receiverId;
+    }
+
+    if (groupId) {
+      messageData.group = groupId;
+    }
+
+    if (receiverId) {
+      io.to(userSocketIDs.get(userId)).emit(NEW_MESSAGE, messageData);
+      io.to(userSocketIDs.get(receiverId)).emit(NEW_MESSAGE, messageData);
+      io.to(userSocketIDs.get(receiverId)).emit(NEW_MESSAGE_ALERT, {
+        sender: userId,
+      });
+    }
+
+    const message = await Message.create(messageData);
+
+    if (groupId) {
+      const realTimeMessage = await Message.findById(message._id).populate(
+        "sender",
+        "username image"
+      );
+      io.to(groupId).emit(NEW_MESSAGE, realTimeMessage);
+      await Group.findByIdAndUpdate(
+        groupId,
+        {
+          $push: { messages: message._id },
+        },
+        { new: true }
+      );
+    }
 
     return res.status(200).json({
       success: true,
