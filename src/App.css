@@ -32,13 +32,23 @@
 }
 
 ::-webkit-scrollbar {
-  /* background-color: none; */
   width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgb(41, 39, 39);
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #ffffff72;
+  background-color: #255487;
   border-radius: 20px;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #255487 black;
 }
 
 .animate {
