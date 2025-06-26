@@ -7,7 +7,7 @@ const ChatList = ({ messages, userId }) => {
   return (
     <div className="w-full flex flex-col gap-2 pl-1">
       {messages?.map((msg, i) => {
-        console.log("msg: ", msg);
+        // console.log("msg: ", msg);
         const senderId =
           typeof msg.sender === "string" ? msg.sender : msg.sender?._id;
         const isSentByCurrentUser = senderId === userId;

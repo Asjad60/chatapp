@@ -99,11 +99,6 @@ const Chat = () => {
         const result = await getAllChats(id);
         if (result) {
           setMessages(result.messages);
-          setTimeout(() => {
-            if (ref.current) {
-              ref.current.scrollIntoView();
-            }
-          }, 50);
         }
       } else {
         socket.emit("join_room", { groupId: id });
@@ -112,6 +107,11 @@ const Chat = () => {
           setMessages(result.messages);
         }
       }
+      setTimeout(() => {
+        if (ref.current) {
+          ref.current.scrollIntoView();
+        }
+      }, 50);
     } catch (error) {
       console.log(error);
     } finally {
