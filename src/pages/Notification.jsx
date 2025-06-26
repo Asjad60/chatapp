@@ -18,9 +18,9 @@ const Notification = () => {
   // console.log("notifications => ", notifications);
 
   return (
-    <div className="text-slate-100">
+    <div className="text-slate-100  [background:radial-gradient(100%_150%_at_90%_50%,#000_40%,#29536E_100%)] h-[75vh] w-full">
       {notifications?.length > 0 ? (
-        <div className="p-6 w-full flex flex-col gap-1 divide-y divide-gray-400/35">
+        <div className="p-2 sm:p-6 w-full flex flex-col gap-1 divide-y divide-gray-400/35">
           {notifications?.map((notif) => (
             <div
               key={notif._id}
