@@ -2,15 +2,14 @@ import logo from "../assets/logo-1.png";
 
 const Home = () => {
   return (
-    <section>
+    <section className="overflow-hidden h-full opacity-30">
       <div
-        className="overflow-hidden h-[75vh] w-full"
+        className="h-full"
         style={{
           backgroundImage: `url(${logo})`,
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
-          backgroundSize: "cover",
-          filter: "opacity(0.6)",
+          backgroundSize: "contain",
         }}
       ></div>
     </section>

@@ -89,13 +89,13 @@ const UsersSidebar = () => {
   }, [socket, handleUserStatus, requestStatus]);
 
   return (
-    <aside className=" sm:max-w-[200px] sm:border-r border-gray-600/30 w-full overflow-hidden sm:static absolute inset-0 z-[11] bg-gradient-to-br from-[#70838e] via-slate-400 to-[#0c507a]">
+    <aside className="text-slate-100">
       {loading ? (
         <div className="w-full h-full flex justify-center items-center">
           <div className="loader"></div>
         </div>
       ) : (
-        <div className=" w-full flex flex-col gap-4 overflow-y-auto">
+        <div className=" w-full h-screen flex flex-col gap-4 overflow-y-auto p-3">
           {friends?.length > 0 ? (
             friends
               ?.sort((a, b) =>
@@ -123,9 +123,7 @@ const UsersSidebar = () => {
             </p>
           )}
 
-          <h4 className="text-xl font-edu-sa font-semibold px-3 border-t border-slate-300/70">
-            Groups
-          </h4>
+          <h4 className="text-2xl font-edu-sa font-semibold p-3">Groups</h4>
 
           {groups?.length > 0 ? (
             groups.map((group) => (
@@ -134,8 +132,8 @@ const UsersSidebar = () => {
                   group.groupName
                 )}`}
                 key={group._id}
-                className={`text-white px-2 ${
-                  id === group._id && "bg-black/20"
+                className={`text-white px-2 rounded-lg ${
+                  id === group._id && "border border-[#1a2c4d]"
                 }`}
               >
                 <div className="flex gap-3 items-center py-2">

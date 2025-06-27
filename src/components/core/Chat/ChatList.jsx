@@ -5,7 +5,7 @@ const ChatList = ({ messages, userId }) => {
   const [searchParams] = useSearchParams();
   const groupName = searchParams.has("groupname");
   return (
-    <div className="w-full flex flex-col gap-2 pl-1">
+    <div className="w-full flex flex-col gap-2 px-1.5">
       {messages?.map((msg, i) => {
         // console.log("msg: ", msg);
         const senderId =
@@ -23,8 +23,8 @@ const ChatList = ({ messages, userId }) => {
               <div
                 className={`max-w-[150px] min-[335px]:max-w-[300px] break-words ${
                   isSentByCurrentUser
-                    ? "rounded-md rounded-tr-none p-1"
-                    : "rounded-md rounded-ss-none p-2"
+                    ? "rounded-lg rounded-tr-none p-1"
+                    : "rounded-lg rounded-ss-none p-2"
                 }`}
                 style={{
                   backgroundColor: isSentByCurrentUser

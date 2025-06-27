@@ -27,11 +27,7 @@ function App() {
   }, []);
 
   return (
-    <main className="App flex flex-col min-h-screen w-screen font-comfortaa [background:radial-gradient(110%_110%_at_50%_10%,#000_40%,#29536E_100%)]">
-      <div className="absolute inset-0 opacity-20 z-[1]">
-        <div className="h-full w-full bg-[linear-gradient(to_right,rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.2)_1px,transparent_1px)] bg-[size:3rem_3rem]"></div>
-      </div>
-
+    <main className="App flex flex-col h-screen font-comfortaa [background:radial-gradient(110%_110%_at_50%_10%,#000_40%,#29536E_100%)]">
       <div className="z-10">
         <Suspense
           fallback={

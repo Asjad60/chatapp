@@ -12,14 +12,6 @@ import { removeNewMessagesAlert } from "../slices/chatSlice";
 import ChatProfileHeader from "../components/core/Chat/ChatProfileHeader";
 import { fetchGroupMessages } from "../services/operations/groupAPI";
 
-const bgArray = [
-  "https://i.pinimg.com/736x/f0/91/67/f09167145c41fcd5a496784b9f8bf326.jpg",
-  "https://i.pinimg.com/564x/ba/f7/fb/baf7fb0f1fbc71ed6447743a5755b08e.jpg",
-  "https://i.pinimg.com/736x/d1/0d/eb/d10debb4647bf5d5221ff74c92324bc8.jpg",
-  "https://i.pinimg.com/564x/35/a6/b6/35a6b619a0cb3e4abc5f4dc78a7c0b8c.jpg",
-  "https://i.pinimg.com/564x/9f/4b/8f/9f4b8f74df2e068ea1cd825c98dab1e3.jpg",
-];
-
 const Chat = () => {
   const { user, setLastChatWith } = getContextData();
   const [loading, setLoading] = useState(false);
@@ -29,11 +21,6 @@ const Chat = () => {
   const ref = useRef(null);
   const [content, setContent] = useState("");
   const [messages, setMessages] = useState([]);
-  const [bgImageIndex, setBgImageIndex] = useState(
-    localStorage.getItem("bg-wallpaper")
-      ? JSON.parse(localStorage.getItem("bg-wallpaper"))
-      : 0
-  );
   const [searchParams] = useSearchParams();
   const isGroupName = searchParams.has("groupname");
 
@@ -148,19 +135,14 @@ const Chat = () => {
     <section
       className="w-full h-full flex flex-col  bg-cover bg-center bg-no-repeat "
       ref={containerRef}
-      style={{
-        backgroundImage: `url(${bgArray[bgImageIndex]})`,
-      }}
+      // style={{
+      //   backgroundImage: `url(${bgArray[bgImageIndex]})`,
+      // }}
     >
       <div className="bg-[rgba(0,0,0,0.2)] relative h-full pb-1 ">
-        <ChatProfileHeader
-          setBgImageIndex={setBgImageIndex}
-          bgArray={bgArray}
-          ref={containerRef}
-          userId={user._id}
-        />
+        <ChatProfileHeader ref={containerRef} userId={user._id} />
 
-        <div className="h-[calc(75vh-135px)] pb-1 overflow-y-auto pt-1">
+        <div className="h-[calc(100vh-135px)] pb-1 overflow-y-auto pt-1">
           {!loading ? (
             <ChatList messages={messages} userId={user._id} />
           ) : (

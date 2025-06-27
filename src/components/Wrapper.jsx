@@ -77,16 +77,22 @@ const Wrapper = () => {
   }, []);
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center p-3">
-      <Navbar />
-      <div className="relative overflow-hidden max-w-[900px] w-full min-h-[75vh] border border-gray-600/30 rounded-b-lg flex z-10">
-        <UsersSidebar />
+    <div className="w-full flex flex-col items-center justify-center">
+      {/* <Navbar /> */}
+      <div className="relative w-full h-screen border border-gray-600/30 rounded-b-lg flex z-10">
+        <div className="sm:max-w-[350px] sm:border-r border-gray-600/30 w-full overflow-hidden sm:static absolute inset-0 z-[11] ">
+          <Navbar />
+          <UsersSidebar />
+        </div>
         <div
-          className={`w-full h-full bg-transparent ${
+          className={`w-full h-full [background:radial-gradient(110%_110%_at_70%_5%,#000_40%,#29536E_100%)] ${
             location.pathname !== "/" ? "z-[20]" : "z-[5]"
-          } absolute sm:static inset-0 bg-slate-100`}
+          } absolute sm:relative inset-0 `}
         >
-          <Outlet />
+          <div className="absolute inset-0 opacity-20 z-0 h-full w-full bg-[linear-gradient(to_right,rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.2)_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
+          <div className="relative w-full h-full">
+            <Outlet />
+          </div>
         </div>
       </div>
     </div>

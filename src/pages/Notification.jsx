@@ -1,6 +1,8 @@
 import { getContextData } from "../context/AuthProvider";
 import { getSocket } from "../context/SocketProvider";
 import Button from "../components/Button";
+import { Link } from "react-router-dom";
+import { FaLongArrowAltLeft } from "react-icons/fa";
 
 const Notification = () => {
   const { notifications } = getContextData();
@@ -18,7 +20,10 @@ const Notification = () => {
   // console.log("notifications => ", notifications);
 
   return (
-    <div className="text-slate-100  [background:radial-gradient(100%_150%_at_90%_50%,#000_40%,#29536E_100%)] h-[75vh] w-full">
+    <div className="text-slate-100 h-full w-full flex flex-col">
+      <Link to={"/"} className="p-4 max-w-min">
+        <FaLongArrowAltLeft size={25} />
+      </Link>
       {notifications?.length > 0 ? (
         <div className="p-2 sm:p-6 w-full flex flex-col gap-1 divide-y divide-gray-400/35">
           {notifications?.map((notif) => (

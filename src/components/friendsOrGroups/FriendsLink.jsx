@@ -3,7 +3,11 @@ import { Link } from "react-router-dom";
 
 const FriendsLink = ({ friend, id, newMessageAlert }) => {
   return (
-    <div className={`${id === friend._id && " bg-black/20"} p-2`}>
+    <div
+      className={`${
+        id === friend._id && "border border-[#1a2c4d]"
+      } p-2 rounded-lg`}
+    >
       <Link
         to={`/chat/${friend._id}?username=${encodeURIComponent(
           friend.username

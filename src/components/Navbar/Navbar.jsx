@@ -25,18 +25,21 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="rounded-t-lg relative max-w-[900px] w-full flex justify-between items-start border border-gray-600/30 p-2">
+    // <nav className="rounded-t-lg relative max-w-[900px] w-full flex justify-between items-start border border-gray-600/30 p-2">
+    <nav className=" relative w-full flex justify-between items-start border border-gray-600/30 p-2">
       {/* <h1 className="text-4xl font-extrabold font-inter uppercase">
         Chit Chat
       </h1> */}
 
-      <TextHighlighter
-        text={"Chit Chat"}
-        tag={"h1"}
-        customClass={"!text-4xl !font-[900]"}
-      />
+      <Link to={"/"}>
+        <TextHighlighter
+          text={"Chit Chat"}
+          tag={"h1"}
+          customClass={"!text-4xl !font-[900] font-edu-sa"}
+        />
+      </Link>
 
-      <div className=" flex gap-2 items-center flex-wrap">
+      <div className=" flex gap-2 items-center justify-end flex-wrap">
         <div className="relative">
           <Button
             onClick={() => {
