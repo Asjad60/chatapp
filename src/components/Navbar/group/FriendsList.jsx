@@ -15,7 +15,10 @@ const FriendsList = ({ friends, setSelectedFriends, selectedFriends }) => {
       {friends.length > 0 ? (
         friends.map((frnd) => (
           <div className="flex justify-between p-2" key={frnd._id}>
-            <div className={`flex gap-2 items-center`}>
+            <label
+              className={`flex gap-2 items-center cursor-pointer`}
+              htmlFor={`${frnd.username}-checkbox`}
+            >
               <picture>
                 <img
                   src={frnd.image.url}
@@ -25,11 +28,11 @@ const FriendsList = ({ friends, setSelectedFriends, selectedFriends }) => {
                 />
               </picture>
               <span className="capitalize text-sm">{frnd.username}</span>
-            </div>
+            </label>
 
             <input
               type="checkbox"
-              id="friend-checkbox"
+              id={`${frnd.username}-checkbox`}
               name="friend-checkbox"
               onChange={(e) => handleCheckesUser(e.target.checked, frnd._id)}
               checked={selectedFriends.includes(frnd._id)}
