@@ -49,7 +49,7 @@ const SearchUsers = ({ user, searchUser, setSearchUser, users, setUsers }) => {
   }, [searchValue]);
 
   return (
-    <div className=" absolute right-0 top-12 z-[100] max-w-[300px] text-slate-100 bg-[#193858] rounded-lg p-1 border border-gray-600/30">
+    <div>
       <div className="flex justify-end mb-5">
         <Button onClick={() => setSearchUser(false)} customClass={"p-1"}>
           <GiCrossedBones size={20} />
@@ -62,13 +62,13 @@ const SearchUsers = ({ user, searchUser, setSearchUser, users, setUsers }) => {
         className="form-style mb-10"
       />
 
-      <div className="flex flex-col gap-y-4 h-[210px] overflow-y-auto">
+      <div className="flex flex-col gap-y-4 h-[300px] overflow-y-auto">
         {users?.map((userr) => (
           <div
             className={`flex gap-2 items-center relative p-1`}
             key={userr._id}
           >
-            <picture className="w-[65px] h-[40px]">
+            <picture className="w-[50px] h-[40px]">
               <img
                 src={
                   typeof userr.image === "string"

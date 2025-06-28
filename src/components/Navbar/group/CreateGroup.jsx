@@ -35,7 +35,7 @@ const CreateGroup = ({ setIsCreatingGroup }) => {
   }, []);
 
   return (
-    <div className="absolute top-14 right-12 p-2 max-w-[300px] w-full text-slate-100 bg-[#193858] rounded-md  z-[100]">
+    <div>
       <div className="flex flex-col gap-1 mb-4">
         <h3 className="text-xl font-bold font-edu-sa">Create Group</h3>
         <p className="text-xs text-slate-400">

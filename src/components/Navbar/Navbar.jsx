@@ -10,6 +10,8 @@ import SearchUsers from "./SearchUsers";
 import TextHighlighter from "../TextHighlighter";
 import { GrGroup } from "react-icons/gr";
 import CreateGroup from "./group/CreateGroup";
+import ModalViewer from "../ModalViewer";
+import { AnimatePresence } from "framer-motion";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -51,15 +53,19 @@ const Navbar = () => {
           >
             <IoIosSearch size={25} />
           </Button>
-          {searchUser && (
-            <SearchUsers
-              user={user}
-              users={users}
-              setUsers={setUsers}
-              searchUser={searchUser}
-              setSearchUser={setSearchUser}
-            />
-          )}
+          <AnimatePresence>
+            {searchUser && (
+              <ModalViewer onClose={() => setSearchUser(false)}>
+                <SearchUsers
+                  user={user}
+                  users={users}
+                  setUsers={setUsers}
+                  searchUser={searchUser}
+                  setSearchUser={setSearchUser}
+                />
+              </ModalViewer>
+            )}
+          </AnimatePresence>
         </div>
 
         <Button customClass={"p-2"} title="Notifications">
@@ -73,22 +79,24 @@ const Navbar = () => {
           </Link>
         </Button>
 
-        <div>
-          <Button
-            title={"Create Group"}
-            customClass={"p-2 text-slate-300"}
-            onClick={() => {
-              setIsCreatingGroup((prev) => !prev);
-              if (searchUser) setSearchUser(false);
-            }}
-          >
-            <GrGroup size={25} />
-          </Button>
+        <Button
+          title={"Create Group"}
+          customClass={"p-2 text-slate-300"}
+          onClick={() => {
+            setIsCreatingGroup((prev) => !prev);
+            if (searchUser) setSearchUser(false);
+          }}
+        >
+          <GrGroup size={25} />
+        </Button>
 
+        <AnimatePresence>
           {isCreatingGroup && (
-            <CreateGroup setIsCreatingGroup={setIsCreatingGroup} />
+            <ModalViewer onClose={() => setIsCreatingGroup(false)}>
+              <CreateGroup setIsCreatingGroup={setIsCreatingGroup} />
+            </ModalViewer>
           )}
-        </div>
+        </AnimatePresence>
 
         <Button customClass="p-2" onClick={handleLogout} title="Logout">
           <IoIosLogOut size={25} />
