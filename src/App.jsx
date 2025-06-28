@@ -27,7 +27,7 @@ function App() {
   }, []);
 
   return (
-    <main className="App flex flex-col h-screen font-comfortaa [background:radial-gradient(110%_110%_at_50%_10%,#000_40%,#29536E_100%)]">
+    <main className="App flex flex-col h-[100dvh] font-comfortaa [background:radial-gradient(110%_110%_at_50%_10%,#000_40%,#29536E_100%)]">
       <div className="z-10">
         <Suspense
           fallback={

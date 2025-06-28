@@ -79,7 +79,7 @@ const Wrapper = () => {
   return (
     <div className="w-full flex flex-col items-center justify-center">
       {/* <Navbar /> */}
-      <div className="relative w-full h-screen border border-gray-600/30 rounded-b-lg flex z-10">
+      <div className="relative w-full h-[100dvh] border border-gray-600/30 rounded-b-lg flex z-10">
         <div className="sm:max-w-[350px] sm:border-r border-gray-600/30 w-full overflow-hidden sm:static absolute inset-0 z-[11] ">
           <Navbar />
           <UsersSidebar />

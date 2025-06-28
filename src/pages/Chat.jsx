@@ -142,7 +142,7 @@ const Chat = () => {
       <div className="bg-[rgba(0,0,0,0.2)] relative h-full pb-1 ">
         <ChatProfileHeader ref={containerRef} userId={user._id} />
 
-        <div className="h-[calc(100vh-135px)] pb-1 overflow-y-auto pt-1">
+        <div className="h-[calc(100dvh-140px)] pb-1 overflow-y-auto pt-1">
           {!loading ? (
             <ChatList messages={messages} userId={user._id} />
           ) : (
