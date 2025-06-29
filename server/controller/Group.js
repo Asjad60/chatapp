@@ -169,3 +169,55 @@ export const getGroupMessages = asyncHandler(async (req, res) => {
     },
   });
 });
+
+export const getGroupsExceptMy = asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+
+  const groups = await Group.find(
+    { members: { $not: { $elemMatch: { $eq: userId } } } },
+    { messages: false }
+  );
+
+  if (groups.length === 0) {
+    throw new ApiError("Groups not found", 404);
+  }
+
+  return res.status(200).json({
+    message: "Groups Found",
+    success: true,
+    data: groups,
+  });
+});
+
+export const joinGroup = asyncHandler(async (req, res) => {
+  const io = req.app.get("io");
+  const userSocketIDs = req.app.get("userSocketIDs");
+  const userId = req.user.id;
+  const { groupId } = req.body;
+
+  if (!groupId) {
+    throw new ApiError("GroupID required", 400);
+  }
+
+  const group = await Group.findOne(
+    {
+      _id: groupId,
+      members: { $not: { $elemMatch: { $eq: userId } } },
+    },
+    "_id groupName groupPorfile members"
+  );
+
+  if (!group) {
+    throw new ApiError("Group not found or Already in group", 404);
+  }
+
+  group.members.push(userId);
+  await group.save();
+
+  io.to(userSocketIDs.get(userId)).emit("join_group", group);
+
+  return res.status(200).json({
+    success: true,
+    message: "Group Joined",
+  });
+});
