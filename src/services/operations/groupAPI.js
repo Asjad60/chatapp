@@ -69,3 +69,45 @@ export const fetchGroupMessages = async (groupId, page = 1, limit = 50) => {
 
   return res;
 };
+
+export const fetchGroupsExceptMy = async () => {
+  let res = null;
+  try {
+    res = await apiConnector(groupEndpoints.GET_GROUPS_EXCEPT_MY_API);
+
+    if (!res.success) {
+      throw new Error(res.message);
+    }
+  } catch (error) {
+    console.log("get groups to join error: ", error);
+  }
+
+  return res;
+};
+
+export const JoinToGroup = async (groupId) => {
+  const toastId = toast.loading("Loading...");
+  let res = null;
+  try {
+    res = await apiConnector(
+      groupEndpoints.JOIN_GROUP_API,
+      "POST",
+      {
+        "Content-Type": "application/json",
+      },
+      { groupId }
+    );
+
+    if (!res.success) {
+      throw new Error(res.message);
+    }
+
+    toast.success(res.message);
+  } catch (error) {
+    console.log("Join to group error: ", error);
+    toast.error(error.message);
+  } finally {
+    toast.dismiss(toastId);
+  }
+  return res;
+};
