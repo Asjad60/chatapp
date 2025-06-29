@@ -23,6 +23,6 @@ router.get("/getAllGroups", isAuthenticated, getAllMyGroups);
 router.get("/getGroupDetails/:groupId", isAuthenticated, getGroupDetails);
 router.get("/getGroupMessages/:groupId", isAuthenticated, getGroupMessages);
 router.get("/getGroupsExceptMy", isAuthenticated, getGroupsExceptMy);
-router.get("/joinGroup", isAuthenticated, joinGroup);
+router.post("/joinGroup", isAuthenticated, joinGroup);
 
 export default router;
