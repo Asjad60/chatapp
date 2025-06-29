@@ -73,18 +73,24 @@ const UsersSidebar = () => {
     }, 100);
   };
 
+  const handleJoinGroup = (data) => {
+    setGroups((prev) => [...prev, data]);
+  };
+
   useEffect(() => {
     if (socket.connected) {
       requestStatus();
     }
 
     socket.on("connect", requestStatus);
+    socket.on("join_group", handleJoinGroup);
     socket.on("user_status", handleUserStatus);
     socket.on("refetch_friends", () => fetchMyFriends());
 
     return () => {
       socket.off("user_status", handleUserStatus);
       socket.off("refetch_friends");
+      socket.off("join_group", handleJoinGroup);
     };
   }, [socket, handleUserStatus, requestStatus]);
 

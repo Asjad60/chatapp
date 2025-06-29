@@ -9,9 +9,9 @@ import { IoIosLogOut, IoIosSearch } from "react-icons/io";
 import SearchUsers from "./SearchUsers";
 import TextHighlighter from "../TextHighlighter";
 import { GrGroup } from "react-icons/gr";
-import CreateGroup from "./group/CreateGroup";
 import ModalViewer from "../ModalViewer";
 import { AnimatePresence } from "framer-motion";
+import GroupTemplate from "./group";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -93,7 +93,7 @@ const Navbar = () => {
         <AnimatePresence>
           {isCreatingGroup && (
             <ModalViewer onClose={() => setIsCreatingGroup(false)}>
-              <CreateGroup setIsCreatingGroup={setIsCreatingGroup} />
+              <GroupTemplate setIsCreatingGroup={setIsCreatingGroup} />
             </ModalViewer>
           )}
         </AnimatePresence>
