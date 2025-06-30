@@ -160,6 +160,27 @@ export const initializeSocket = async (server, app) => {
       }
     });
 
+    socket.on("typing", (data) => {
+      const { receiverId, groupId, isTyping } = data;
+      const receiverSocketId = userSocketIDs.get(receiverId);
+      if (data.hasOwnProperty("receiverId")) {
+        if (receiverSocketId) {
+          io.to(receiverSocketId).emit("user-typing", {
+            sender: userId,
+            receiver: receiverId,
+            isTyping,
+          });
+        }
+      } else {
+        socket.to(groupId).emit("user-typing", {
+          username: socket.user.username,
+          sender: userId,
+          groupId,
+          isTyping,
+        });
+      }
+    });
+
     socket.on("disconnect", () => {
       console.log("User Disconnected " + socket.user.email, socket.id);
       userSocketIDs.delete(userId.toString());
