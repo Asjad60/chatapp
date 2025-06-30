@@ -163,7 +163,7 @@ export const initializeSocket = async (server, app) => {
     socket.on("typing", (data) => {
       const { receiverId, groupId, isTyping } = data;
       const receiverSocketId = userSocketIDs.get(receiverId);
-      if (data.hasOwnProperty("receiverId")) {
+      if (receiverId) {
         if (receiverSocketId) {
           io.to(receiverSocketId).emit("user-typing", {
             sender: userId,

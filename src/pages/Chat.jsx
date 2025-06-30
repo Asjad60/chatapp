@@ -21,11 +21,13 @@ const Chat = () => {
   const ref = useRef(null);
   const [content, setContent] = useState("");
   const [messages, setMessages] = useState([]);
+  const [typingUsers, setTypingUsers] = useState([]);
   const [searchParams] = useSearchParams();
   const isGroupName = searchParams.has("groupname");
 
   const containerRef = useRef(null);
   const inputRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -106,6 +108,41 @@ const Chat = () => {
     }
   };
 
+  const handleOnUserTyping = useCallback(
+    (data) => {
+      const { sender, isTyping, username, groupId, receiver } = data;
+      if (isGroupName && groupId === id) {
+        setTypingUsers((prev) => {
+          if (isTyping) {
+            return prev.includes(username) ? prev : [...prev, username];
+          } else {
+            return prev.filter((user) => user !== username);
+          }
+        });
+      } else if (!isGroupName && id === sender) {
+        setTypingUsers(isTyping ? [sender] : []);
+      }
+    },
+    [id]
+  );
+
+  const handleTypeMessage = () => {
+    if (socket) {
+      let obj = { isTyping: true };
+      if (isGroupName) obj.groupId = id;
+      if (!isGroupName) obj.receiverId = id;
+      socket.emit("typing", obj);
+
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+
+      typingTimeoutRef.current = setTimeout(() => {
+        socket.emit("typing", { ...obj, isTyping: false });
+      }, 500);
+    }
+  };
+
   useEffect(() => {
     if (id) {
       fetchChats();
@@ -116,9 +153,11 @@ const Chat = () => {
   }, [id]);
 
   useEffect(() => {
+    socket.on("user-typing", handleOnUserTyping);
     socket.on("new_message", handleNewMessage);
     socket.on("message_seen", handleMessageSeen);
     return () => {
+      socket.off("user-typing", handleOnUserTyping);
       socket.off("new_message", handleNewMessage);
       socket.off("message_seen", handleMessageSeen);
     };
@@ -128,7 +167,7 @@ const Chat = () => {
     if (ref.current) {
       ref.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages]);
+  }, [messages, typingUsers]);
   // console.log("hello");
 
   return (
@@ -144,7 +183,24 @@ const Chat = () => {
 
         <div className="h-[calc(100dvh-140px)] pb-1 overflow-y-auto pt-1">
           {!loading ? (
-            <ChatList messages={messages} userId={user._id} />
+            <>
+              <ChatList messages={messages} userId={user._id} />
+              {typingUsers.length > 0 && (
+                <div className="p-2 bg-black/60 w-[100px] rounded-lg mt-3 ml-2">
+                  {typingUsers.length > 0 &&
+                    typingUsers?.map((user) => (
+                      <div className="">
+                        {user && isGroupName && (
+                          <span className="font-bold text-yellow-600 text-sm font-inter">
+                            {user}
+                          </span>
+                        )}
+                        <div className="typing-loader ml-8 mt-2"></div>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </>
           ) : (
             <div className="w-full h-full flex justify-center items-center">
               <div className="loader"></div>
@@ -160,7 +216,10 @@ const Chat = () => {
                 type="text"
                 name="content"
                 className="bg-transparent w-full outline-none py-2 text-white  placeholder:text-white"
-                onChange={(e) => setContent(e.target.value)}
+                onChange={(e) => {
+                  setContent(e.target.value);
+                  handleTypeMessage();
+                }}
                 placeholder="Enter Message"
                 value={content}
                 autoComplete="off"
