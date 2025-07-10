@@ -54,6 +54,7 @@ const Wrapper = () => {
   }, []);
 
   useEffect(() => {
+    socket.connect();
     socket.on("notification", gettingNotifications);
     socket.on("new_message_alert", handleNewMessageAlert);
     socket.on("read_notification", handleReadNotifications);
@@ -61,6 +62,7 @@ const Wrapper = () => {
       socket.off("notification", gettingNotifications);
       socket.off("new_message_alert", handleNewMessageAlert);
       socket.off("read_notification", handleReadNotifications);
+      socket.disconnect();
     };
   }, [
     socket,
@@ -70,9 +72,6 @@ const Wrapper = () => {
   ]);
 
   useEffect(() => {
-    if (!socket.connected) {
-      socket.connect();
-    }
     fetchNotifications();
   }, []);
 
