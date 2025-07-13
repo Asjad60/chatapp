@@ -1,4 +1,10 @@
-import React, { forwardRef, useEffect, useRef, useState } from "react";
+import React, {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 // import Button from "../../Button";
 // import { BsThreeDotsVertical } from "react-icons/bs";
 import { AnimatePresence, motion } from "framer-motion";
@@ -6,19 +12,25 @@ import { Link, useParams, useSearchParams } from "react-router-dom";
 import { fetchGroupDetails } from "../../../services/operations/groupAPI";
 import { FaLongArrowAltLeft } from "react-icons/fa";
 import GroupMembers from "./GroupMembers";
+import { getSocket } from "../../../context/SocketProvider";
 
 const ChatProfileHeader = forwardRef(({ userId }, containerRef) => {
   const [searchParams] = useSearchParams();
   const username = searchParams.get("username");
   const imageUrl = searchParams.get("imageUrl");
   const isUsernameParam = searchParams.has("username");
-  const { id: groupId } = useParams();
+  const { id: chatId } = useParams();
+  const socket = getSocket();
 
   const [groupDetails, setGroupDetails] = useState(null);
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
   const [containerWidth, setContainerWidth] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const [imagePos, setImagePos] = useState(null);
+  const [status, setStatus] = useState({
+    totalOnlineUsers: 0,
+    userStatus: "offline",
+  });
 
   const imageRef = useRef();
 
@@ -45,7 +57,7 @@ const ChatProfileHeader = forwardRef(({ userId }, containerRef) => {
   useEffect(() => {
     (async () => {
       if (searchParams.has("groupname")) {
-        const res = await fetchGroupDetails(groupId);
+        const res = await fetchGroupDetails(chatId);
         if (res) {
           setGroupDetails(res.data);
         }
@@ -55,7 +67,35 @@ const ChatProfileHeader = forwardRef(({ userId }, containerRef) => {
     if (isOpen) {
       setIsOpen(false);
     }
-  }, [groupId]);
+  }, [chatId]);
+
+  const handleUserStatus = useCallback(
+    async (data) => {
+      const onlineUsers = new Set(data);
+      if (isUsernameParam) {
+        if (onlineUsers.has(chatId)) {
+          setStatus((prev) => ({ ...prev, userStatus: "online" }));
+        } else {
+          setStatus((prev) => ({ ...prev, userStatus: "offline" }));
+        }
+      } else {
+        if (!groupDetails?.members) return;
+
+        const totalOnlineUsersInGroup = groupDetails.members
+          .filter((member) => member?._id && member._id !== userId)
+          .reduce(
+            (acc, member) => (onlineUsers.has(member._id) ? acc + 1 : acc),
+            0
+          );
+
+        setStatus({
+          totalOnlineUsers: totalOnlineUsersInGroup,
+          userStatus: totalOnlineUsersInGroup > 0 ? "online" : "offline",
+        });
+      }
+    },
+    [chatId, groupDetails, userId, isUsernameParam]
+  );
 
   useEffect(() => {
     const handleResize = () => {
@@ -64,12 +104,19 @@ const ChatProfileHeader = forwardRef(({ userId }, containerRef) => {
         setContainerWidth(containerRef.current.offsetWidth);
       }
     };
-
-    handleResize(); // initial run
+    handleResize();
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  useEffect(() => {
+    socket.on("user_status", handleUserStatus);
+
+    return () => {
+      socket.off("user_status", handleUserStatus);
+    };
+  }, [handleUserStatus, chatId]);
 
   const isMobile = screenWidth <= 480;
   const animatedSize = isMobile ? 200 : 300;
@@ -125,7 +172,19 @@ const ChatProfileHeader = forwardRef(({ userId }, containerRef) => {
             {groupDetails?.groupName[0]}
           </div>
         )}
-        <h2>{isUsernameParam ? username : groupDetails?.groupName}</h2>
+        <div className="flex flex-col">
+          <h2>{isUsernameParam ? username : groupDetails?.groupName}</h2>
+          <span
+            className={`text-xs ${
+              status.userStatus === "online" ? "text-green-600" : "text-red-400"
+            }`}
+          >
+            {!isUsernameParam &&
+              status.totalOnlineUsers > 0 &&
+              status.totalOnlineUsers}{" "}
+            {status.userStatus}
+          </span>
+        </div>
       </div>
 
       {/* Zoomed Image */}
