@@ -67,22 +67,11 @@ const UsersSidebar = () => {
     fetchInitialData();
   }, []);
 
-  const requestStatus = () => {
-    setTimeout(() => {
-      socket.emit("user_status");
-    }, 100);
-  };
-
-  const handleJoinGroup = (data) => {
+  const handleJoinGroup = useCallback((data) => {
     setGroups((prev) => [...prev, data]);
-  };
+  }, []);
 
   useEffect(() => {
-    if (socket.connected) {
-      requestStatus();
-    }
-
-    socket.on("connect", requestStatus);
     socket.on("join_group", handleJoinGroup);
     socket.on("user_status", handleUserStatus);
     socket.on("refetch_friends", () => fetchMyFriends());
@@ -92,7 +81,7 @@ const UsersSidebar = () => {
       socket.off("refetch_friends");
       socket.off("join_group", handleJoinGroup);
     };
-  }, [socket, handleUserStatus, requestStatus]);
+  }, [socket, handleJoinGroup, handleUserStatus]);
 
   return (
     <aside className="text-slate-100">
