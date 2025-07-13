@@ -8,6 +8,8 @@ import {
   NEW_MESSAGE,
   NEW_MESSAGE_ALERT,
   READ_NOTIFICATION,
+  TYPING,
+  USER_STATUS,
 } from "../constants/events.js";
 import { socketAuthenticator } from "../middleware/auth.js";
 import cookieParser from "cookie-parser";
@@ -46,9 +48,8 @@ export const initializeSocket = async (server, app) => {
 
     userSocketIDs.set(userId.toString(), socket.id);
     onlineUsers.add(userId.toString());
-    socket.on("user_status", () => {
-      io.emit("user_status", Array.from(onlineUsers));
-    });
+
+    io.emit(USER_STATUS, Array.from(onlineUsers));
 
     socket.on(NEW_MESSAGE, async ({ sender, receiver, content }) => {
       try {
@@ -160,7 +161,7 @@ export const initializeSocket = async (server, app) => {
       }
     });
 
-    socket.on("typing", (data) => {
+    socket.on(TYPING, (data) => {
       const { receiverId, groupId, isTyping } = data;
       const receiverSocketId = userSocketIDs.get(receiverId);
       if (receiverId) {

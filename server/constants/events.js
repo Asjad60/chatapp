@@ -9,6 +9,8 @@ const READ_NOTIFICATION = "read_notification";
 const JOIN_ROOM = "join_room";
 const LEAVE_ROOM = "leave_room";
 const GROUP_MESSAGE = "group_message";
+const TYPING = "typing";
+const USER_STATUS = "user_status";
 export {
   NEW_MESSAGE,
   FRIEND_REQUEST,
@@ -21,4 +23,6 @@ export {
   JOIN_ROOM,
   LEAVE_ROOM,
   GROUP_MESSAGE,
+  TYPING,
+  USER_STATUS,
 };
