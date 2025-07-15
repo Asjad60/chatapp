@@ -52,7 +52,7 @@ const Chat = () => {
 
   const handleNewMessage = useCallback(
     (data) => {
-      console.log(data);
+      // console.log(data);
       if (!isGroupName) {
         if (data.receiver === id || data.sender === id) {
           setMessages((prevMessages) => [...prevMessages, data]);
@@ -62,7 +62,7 @@ const Chat = () => {
         setMessages((prevMessages) => [...prevMessages, data]);
       }
     },
-    [messages]
+    [id, user._id, isGroupName]
   );
 
   const handleMessageSeen = useCallback(
@@ -77,7 +77,7 @@ const Chat = () => {
         );
       }
     },
-    [messages]
+    [id]
   );
 
   const fetchChats = async () => {
@@ -100,7 +100,7 @@ const Chat = () => {
         if (ref.current) {
           ref.current.scrollIntoView();
         }
-      }, 50);
+      }, 100);
     } catch (error) {
       console.log(error);
     } finally {
@@ -160,8 +160,9 @@ const Chat = () => {
       socket.off("user-typing", handleOnUserTyping);
       socket.off("new_message", handleNewMessage);
       socket.off("message_seen", handleMessageSeen);
+      if (isGroupName) socket.emit("leave_room", { groupId: id });
     };
-  }, [socket, handleMessageSeen]);
+  }, [socket, handleOnUserTyping, handleNewMessage, handleMessageSeen]);
 
   useEffect(() => {
     if (ref.current) {
@@ -188,8 +189,8 @@ const Chat = () => {
               {typingUsers.length > 0 && (
                 <div className="p-2 bg-black/60 w-[100px] rounded-lg mt-3 ml-2">
                   {typingUsers.length > 0 &&
-                    typingUsers?.map((user) => (
-                      <div className="">
+                    typingUsers?.map((user, i) => (
+                      <div className="" key={i}>
                         {user && isGroupName && (
                           <span className="font-bold text-yellow-600 text-sm font-inter">
                             {user}
