@@ -59,34 +59,21 @@
 }
 
 .loader {
-  --s: 64px;
-  width: var(--s);
-  aspect-ratio: 2;
-  --_g: #3f5abb 90%, #0000;
-  background: radial-gradient(farthest-side, var(--_g)) 0 50%/25% 50%,
-    radial-gradient(farthest-side at bottom, var(--_g)) 50%
-      calc(50% - var(--s) / 16) / 25% 25%,
-    radial-gradient(farthest-side at top, var(--_g)) 50%
-      calc(50% + var(--s) / 16) / 25% 25%,
-    radial-gradient(farthest-side at bottom, var(--_g)) 100%
-      calc(50% - var(--s) / 16) / 25% 25%,
-    radial-gradient(farthest-side at top, var(--_g)) 100%
-      calc(50% + var(--s) / 16) / 25% 25%;
-  background-repeat: no-repeat;
-  animation: l14 1s infinite;
+  width: 50px;
+  padding: 8px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #145782;
+  --_m: conic-gradient(#0000 10%, #000), linear-gradient(#000 0 0) content-box;
+  -webkit-mask: var(--_m);
+  mask: var(--_m);
+  -webkit-mask-composite: source-out;
+  mask-composite: subtract;
+  animation: l3 1s infinite linear;
 }
-@keyframes l14 {
-  25% {
-    background-position: 0 50%, 50% 0, 50% 100%, 100% 0, 100% 100%;
-  }
-  50% {
-    background-position: 100% 50%, 0 0, 0 100%, 50% 0, 50% 100%;
-  }
-  75%,
-  100% {
-    background-position: 100% 50%, 0 calc(50% - var(--s) / 16),
-      0 calc(50% + var(--s) / 16), 50% calc(50% - var(--s) / 16),
-      50% calc(50% + var(--s) / 16);
+@keyframes l3 {
+  to {
+    transform: rotate(1turn);
   }
 }
 

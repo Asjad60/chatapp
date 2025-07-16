@@ -86,11 +86,11 @@ const UsersSidebar = () => {
   return (
     <aside className="text-slate-100">
       {loading ? (
-        <div className="w-full h-full flex justify-center items-center">
+        <div className="w-full h-[calc(100dvh-115px)] flex justify-center items-center">
           <div className="loader"></div>
         </div>
       ) : (
-        <div className=" w-full h-screen flex flex-col gap-4 overflow-y-auto p-3">
+        <div className=" w-full flex flex-col gap-4 overflow-y-auto p-3">
           {friends?.length > 0 ? (
             friends
               ?.sort((a, b) =>
