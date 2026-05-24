@@ -2,6 +2,7 @@ import Group from "../models/Group.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
 import { uploadFileToCloud } from "../utils/uploadImgToCloud.js";
+import { Message } from "../models/Mesaage.js";
 
 export const createGroup = asyncHandler(async (req, res) => {
   const { groupName, membersId: memberIds } = req.body;
@@ -138,28 +139,22 @@ export const getGroupMessages = asyncHandler(async (req, res) => {
   const userId = req.user.id;
   const skip = (page - 1) * limit;
 
-  const group = await Group.findById(groupId)
-    .populate({
-      path: "messages",
-      populate: { path: "sender receiver", select: "username image" },
-    })
+  const groupMessages = await Message.find({ group: groupId })
+    .sort({ createdAt: -1 })
+    .populate("sender receiver", "username image")
     .skip(skip)
-    .limit(parseInt(limit));
+    .limit(limit);
 
-  if (!group) {
-    throw new ApiError("Group not found", 404);
+  if (groupMessages.length === 0) {
+    throw new ApiError("No messages found", 404);
   }
 
-  if (!group.members.includes(userId)) {
-    throw new ApiError("You are not a member of this group", 403);
-  }
-
-  const totalMessages = group.messages.length;
+  const totalMessages = await Message.countDocuments({ group: groupId });
   const totalPages = Math.ceil(totalMessages / limit);
 
   res.status(200).json({
     success: true,
-    messages: group.messages,
+    messages: groupMessages.reverse(),
     pagination: {
       currentPage: parseInt(page),
       totalPages,

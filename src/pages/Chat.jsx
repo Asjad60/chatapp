@@ -21,13 +21,17 @@ const Chat = () => {
   const ref = useRef(null);
   const [content, setContent] = useState("");
   const [messages, setMessages] = useState([]);
+  const [paginationData, setPaginationData] = useState({ hasNextPage: false });
   const [typingUsers, setTypingUsers] = useState([]);
+  const [page, setPage] = useState(1);
+
   const [searchParams] = useSearchParams();
   const isGroupName = searchParams.has("groupname");
 
   const containerRef = useRef(null);
   const inputRef = useRef(null);
   const typingTimeoutRef = useRef(null);
+  const chatContainer = useRef(null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -47,6 +51,19 @@ const Chat = () => {
         setContent("");
         setLastChatWith(id);
       }
+      inputRef.current.focus();
+    }
+  };
+
+  const isUserAtBottom = () => {
+    if (!chatContainer.current) return false;
+    const { scrollTop, scrollHeight, clientHeight } = chatContainer.current;
+    return scrollHeight - scrollTop - clientHeight < 150;
+  };
+
+  const scrollToBottom = () => {
+    if (ref.current) {
+      ref.current.scrollIntoView({ behavior: "smooth" });
     }
   };
 
@@ -80,32 +97,36 @@ const Chat = () => {
     [id]
   );
 
-  const fetchChats = async () => {
-    setLoading(true);
+  const fetchChats = async (pageNumber = 1) => {
+    const container = chatContainer.current;
+    const prevScrollHeight = container?.scrollHeight;
 
-    try {
-      if (!isGroupName) {
-        const result = await getAllChats(id);
-        if (result) {
-          setMessages(result.messages);
-        }
-      } else {
-        socket.emit("join_room", { groupId: id });
-        const result = await fetchGroupMessages(id);
-        if (result) {
-          setMessages(result.messages);
-        }
+    if (!isGroupName) {
+      const result = await getAllChats(id);
+      if (result) {
+        setMessages(result.messages);
       }
-      setTimeout(() => {
-        if (ref.current) {
-          ref.current.scrollIntoView();
-        }
-      }, 100);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
+    } else {
+      const result = await fetchGroupMessages(id, pageNumber, 50);
+      console.log("result: and page: ", result, page);
+      if (result) {
+        setMessages((prev) => {
+          const existingIds = new Set(prev.map((msg) => msg._id));
+          const newMessages = result?.messages?.filter(
+            (msg) => !existingIds.has(msg._id)
+          );
+          return [...newMessages, ...prev];
+        });
+        setPaginationData(result.pagination);
+      }
     }
+
+    setTimeout(() => {
+      if (container) {
+        const newScrollHeight = container.scrollHeight;
+        container.scrollTop = newScrollHeight - prevScrollHeight;
+      }
+    }, 50);
   };
 
   const handleOnUserTyping = useCallback(
@@ -139,18 +160,28 @@ const Chat = () => {
 
       typingTimeoutRef.current = setTimeout(() => {
         socket.emit("typing", { ...obj, isTyping: false });
-      }, 500);
+      }, 1000);
     }
   };
 
   useEffect(() => {
     if (id) {
-      fetchChats();
+      setPage(1);
+      setMessages([]);
+      setPaginationData({ hasNextPage: false });
+      fetchChats(1);
       dispatch(removeNewMessagesAlert(id));
       socket.emit("message_seen", { senderId: user._id, receiverId: id });
       inputRef.current.focus();
     }
-  }, [id]);
+    if (isGroupName) socket.emit("join_room", { groupId: id });
+  }, [id, isGroupName, user._id, socket, dispatch]);
+
+  useEffect(() => {
+    if (page > 1) {
+      fetchChats(page);
+    }
+  }, [page]);
 
   useEffect(() => {
     socket.on("user-typing", handleOnUserTyping);
@@ -165,40 +196,54 @@ const Chat = () => {
   }, [socket, handleOnUserTyping, handleNewMessage, handleMessageSeen]);
 
   useEffect(() => {
-    if (ref.current) {
-      ref.current.scrollIntoView({ behavior: "smooth" });
-    }
+    scrollToBottom();
   }, [messages, typingUsers]);
-  // console.log("hello");
+
+  useEffect(() => {
+    if (!chatContainer.current) return;
+    const container = chatContainer.current;
+
+    const ChatContainerScroll = () => {
+      if (paginationData.hasNextPage && container.scrollTop === 0) {
+        console.log("called");
+        setPage((prev) => prev + 1);
+      }
+    };
+
+    container.addEventListener("scroll", ChatContainerScroll);
+
+    return () => {
+      container.removeEventListener("scroll", ChatContainerScroll);
+    };
+  }, [paginationData.hasNextPage]);
 
   return (
     <section
       className="w-full h-full flex flex-col  bg-cover bg-center bg-no-repeat "
       ref={containerRef}
-      // style={{
-      //   backgroundImage: `url(${bgArray[bgImageIndex]})`,
-      // }}
     >
       <div className="bg-[rgba(0,0,0,0.2)] relative h-full pb-1 ">
         <ChatProfileHeader ref={containerRef} userId={user._id} />
 
-        <div className="h-[calc(100dvh-140px)] pb-1 overflow-y-auto pt-1">
+        <div
+          className="h-[calc(100dvh-140px)] pb-1 overflow-y-auto pt-1"
+          ref={chatContainer}
+        >
           {!loading ? (
             <>
               <ChatList messages={messages} userId={user._id} />
               {typingUsers.length > 0 && (
-                <div className="p-2 bg-black/60 w-[100px] rounded-lg mt-3 ml-2">
-                  {typingUsers.length > 0 &&
-                    typingUsers?.map((user, i) => (
-                      <div className="" key={i}>
-                        {user && isGroupName && (
-                          <span className="font-bold text-yellow-600 text-sm font-inter">
-                            {user}
-                          </span>
-                        )}
-                        <div className="typing-loader ml-8 mt-2"></div>
-                      </div>
-                    ))}
+                <div className="p-2 bg-black/60 w-[100px] rounded-lg mt-3 ml-1.5">
+                  {typingUsers?.map((user, i) => (
+                    <div className="" key={i}>
+                      {user && isGroupName && (
+                        <span className="font-bold text-yellow-600 text-sm font-inter">
+                          {user}
+                        </span>
+                      )}
+                      <div className="typing-loader ml-8 mt-2"></div>
+                    </div>
+                  ))}
                 </div>
               )}
             </>

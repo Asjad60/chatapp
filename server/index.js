@@ -1,7 +1,8 @@
+import dotenv from "dotenv";
+dotenv.config();
 import express from "express";
 import cors from "cors";
 import { createServer } from "http";
-import dotenv from "dotenv";
 import { connectDB } from "./config/connectDB.js";
 import userRoutes from "./routes/UserRoute.js";
 import chatRoutes from "./routes/ChatRoute.js";
@@ -11,7 +12,6 @@ import cookieParser from "cookie-parser";
 import { errorMiddleware } from "./middleware/error.js";
 import { initializeSocket } from "./socket/socketHandler.js";
 
-dotenv.config();
 const PORT = process.env.PORT;
 const app = express();
 const server = createServer(app);
