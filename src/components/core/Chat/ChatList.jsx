@@ -9,22 +9,25 @@ const ChatList = ({ messages, userId }) => {
   const partnerImageUrl = searchParams.get("imageUrl");
 
   const formatTime = (dateStr) => {
-    if (!dateStr) return "10:42 AM"; // Fallback to reference time if empty
+    // Real-time socket messages arrive without createdAt — fall back to
+    // the current time, which is accurate since the message just arrived.
+    const date = dateStr ? new Date(dateStr) : new Date();
     try {
-      const date = new Date(dateStr);
       return date.toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
       });
     } catch (e) {
-      return "10:42 AM";
+      return new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
     }
   };
 
   const formatDateLabel = (dateStr) => {
-    if (!dateStr) return "Today";
+    const date = dateStr ? new Date(dateStr) : new Date();
     try {
-      const date = new Date(dateStr);
       const today = new Date();
       const yesterday = new Date();
       yesterday.setDate(today.getDate() - 1);
