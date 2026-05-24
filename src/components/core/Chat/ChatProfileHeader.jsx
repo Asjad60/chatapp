@@ -5,14 +5,16 @@ import React, {
   useRef,
   useState,
 } from "react";
-// import Button from "../../Button";
-// import { BsThreeDotsVertical } from "react-icons/bs";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { fetchGroupDetails } from "../../../services/operations/groupAPI";
-import { FaLongArrowAltLeft } from "react-icons/fa";
 import GroupMembers from "./GroupMembers";
 import { getSocket } from "../../../context/SocketProvider";
+import {
+  IoArrowBack,
+  IoEllipsisVertical,
+  IoPersonOutline,
+} from "react-icons/io5";
 
 const ChatProfileHeader = forwardRef(({ userId }, containerRef) => {
   const [searchParams] = useSearchParams();
@@ -31,6 +33,10 @@ const ChatProfileHeader = forwardRef(({ userId }, containerRef) => {
     totalOnlineUsers: 0,
     userStatus: "offline",
   });
+
+  // Cache the latest online-user set so we can apply it immediately
+  // after mount without waiting for the next broadcast.
+  const onlineUsersRef = useRef(new Set());
 
   const imageRef = useRef();
 
@@ -69,32 +75,38 @@ const ChatProfileHeader = forwardRef(({ userId }, containerRef) => {
     }
   }, [chatId]);
 
-  const handleUserStatus = useCallback(
-    async (data) => {
-      const onlineUsers = new Set(data);
+  const applyOnlineStatus = useCallback(
+    (onlineUsers) => {
       if (isUsernameParam) {
-        if (onlineUsers.has(chatId)) {
-          setStatus((prev) => ({ ...prev, userStatus: "online" }));
-        } else {
-          setStatus((prev) => ({ ...prev, userStatus: "offline" }));
-        }
+        const userOnline = onlineUsers.has(chatId);
+        setStatus((prev) => ({
+          ...prev,
+          userStatus: userOnline ? "online" : "offline",
+        }));
       } else {
         if (!groupDetails?.members) return;
-
         const totalOnlineUsersInGroup = groupDetails.members
           .filter((member) => member?._id && member._id !== userId)
           .reduce(
             (acc, member) => (onlineUsers.has(member._id) ? acc + 1 : acc),
-            0
+            0,
           );
-
         setStatus({
           totalOnlineUsers: totalOnlineUsersInGroup,
           userStatus: totalOnlineUsersInGroup > 0 ? "online" : "offline",
         });
       }
     },
-    [chatId, groupDetails, userId, isUsernameParam]
+    [chatId, groupDetails, userId, isUsernameParam],
+  );
+
+  const handleUserStatus = useCallback(
+    (data) => {
+      const onlineUsers = new Set(data);
+      onlineUsersRef.current = onlineUsers; // keep ref up-to-date
+      applyOnlineStatus(onlineUsers);
+    },
+    [applyOnlineStatus],
   );
 
   useEffect(() => {
@@ -113,16 +125,26 @@ const ChatProfileHeader = forwardRef(({ userId }, containerRef) => {
   useEffect(() => {
     socket.on("user_status", handleUserStatus);
 
+    // Request a fresh snapshot immediately so the header doesn't start
+    // as "Offline" waiting for the next broadcast.
+    socket.emit("get_online_users");
+
     return () => {
       socket.off("user_status", handleUserStatus);
     };
-  }, [handleUserStatus, chatId]);
+  }, [handleUserStatus, chatId, socket]);
+
+  // When chatId or groupDetails change, re-apply the cached status
+  // instead of waiting for the next broadcast.
+  useEffect(() => {
+    if (onlineUsersRef.current.size > 0) {
+      applyOnlineStatus(onlineUsersRef.current);
+    }
+  }, [chatId, applyOnlineStatus]);
 
   const isMobile = screenWidth <= 480;
   const animatedSize = isMobile ? 200 : 300;
   const left = containerWidth / 2 - animatedSize / 2;
-
-  // console.log("groupDetails: ", groupDetails);
 
   const initialMotionImgStyle = {
     position: "absolute",
@@ -134,8 +156,7 @@ const ChatProfileHeader = forwardRef(({ userId }, containerRef) => {
   };
 
   const animateMotionImgStyle = {
-    //   top: imagePos?.containerHeight / 2 - 150, // center vertically in parent
-    left: left, // center horizontally in parent
+    left: left,
     width: animatedSize,
     height: animatedSize,
     borderRadius: "9999px",
@@ -149,80 +170,132 @@ const ChatProfileHeader = forwardRef(({ userId }, containerRef) => {
     borderRadius: "9999px",
   };
 
+  const isOnline = status.userStatus === "online";
+
   return (
-    <div className="flex justify-between w-full items-center bg-gradient-to-br to-[#000]  from-[#192e3b] z-20">
-      <div
-        className="flex items-center gap-3 p-4 text-white cursor-pointer"
-        onClick={openZoom}
-      >
-        <Link to="/" className="text-slate-300">
-          <FaLongArrowAltLeft size={25} />
+    <div className="flex justify-between w-full items-center bg-white border-b border-slate-100 p-4 shrink-0 font-comfortaa chat-shadow-sm z-20">
+      {/* Left Area: Profile Avatar & Details */}
+      <div className="flex items-center gap-3">
+        {/* Back Link - Only visible on mobile screen widths */}
+        <Link
+          to="/"
+          className="p-2 rounded-xl bg-white border border-slate-200/60 text-slate-500 hover:text-[#0047e1] hover:border-blue-200 hover:bg-blue-50 transition-all duration-200 chat-shadow-sm"
+        >
+          <IoArrowBack size={18} />
         </Link>
-        {isUsernameParam || groupDetails?.groupProfile ? (
-          <img
-            ref={imageRef}
-            src={isUsernameParam ? imageUrl : groupDetails?.groupProfile}
-            className="w-10 h-10 rounded-full object-cover "
-          />
-        ) : (
-          <div
-            ref={imageRef}
-            className="capitalize p-2 rounded-full bg-[#255487] w-[40px] h-[40px] flex justify-center items-center"
-          >
-            {groupDetails?.groupName[0]}
-          </div>
-        )}
+
+        {/* Profile Avatar Clickable to Zoom */}
+        <div onClick={openZoom} className="relative cursor-pointer shrink-0">
+          {isUsernameParam || groupDetails?.groupProfile ? (
+            <img
+              ref={imageRef}
+              src={isUsernameParam ? imageUrl : groupDetails?.groupProfile}
+              className="w-10 h-10 rounded-full object-cover shadow-sm border border-slate-100"
+              alt="Avatar"
+            />
+          ) : (
+            <div
+              ref={imageRef}
+              className="capitalize font-bold text-sm rounded-full bg-blue-600/10 text-blue-600 w-10 h-10 flex justify-center items-center"
+            >
+              {groupDetails?.groupName ? groupDetails?.groupName[0] : "?"}
+            </div>
+          )}
+          {isOnline && (
+            <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
+          )}
+        </div>
+
+        {/* User Info Details */}
         <div className="flex flex-col">
-          <h2>{isUsernameParam ? username : groupDetails?.groupName}</h2>
-          <span
-            className={`text-xs ${
-              status.userStatus === "online" ? "text-green-600" : "text-red-400"
-            }`}
-          >
-            {!isUsernameParam &&
-              status.totalOnlineUsers > 0 &&
-              status.totalOnlineUsers}{" "}
-            {status.userStatus}
-          </span>
+          <h2 className="text-slate-800 font-extrabold text-xs leading-normal">
+            {isUsernameParam ? username : groupDetails?.groupName}
+          </h2>
+          <div className="flex items-center gap-1 mt-0.5">
+            {isOnline ? (
+              <>
+                <span className="w-1.5 h-1.5 bg-green-500 rounded-full shrink-0"></span>
+                <span className="text-[10px] text-green-500 font-bold">
+                  Active now
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="w-1.5 h-1.5 bg-slate-300 rounded-full shrink-0"></span>
+                <span className="text-[10px] text-slate-400 font-semibold">
+                  Offline
+                </span>
+              </>
+            )}
+            {!isUsernameParam && status.totalOnlineUsers > 0 && (
+              <span className="text-[9px] text-blue-500 font-bold ml-1">
+                ({status.totalOnlineUsers} online)
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Zoomed Image */}
+      {/* Right Area: View Profile Dash-Button & More Menu */}
+      <div className="flex items-center gap-3">
+        {/* View Profile pill button */}
+        <button
+          onClick={openZoom}
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50/50 hover:bg-blue-50 border border-blue-200 border-dashed rounded-full text-blue-600 font-bold text-[10px] transition-all duration-200 cursor-pointer shadow-sm"
+        >
+          <IoPersonOutline size={12} className="shrink-0" />
+          <span className="hidden sm:inline">View Profile</span>
+        </button>
+
+        {/* Ellipsis menu button */}
+        <button className="p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-50 transition-colors duration-150 cursor-pointer shrink-0">
+          <IoEllipsisVertical size={16} />
+        </button>
+      </div>
+
+      {/* Zoomed Image & Group Details Modal Overlay */}
       <AnimatePresence>
         {isOpen && imagePos && (
           <motion.div
-            className="absolute inset-0 bg-black text-slate-100 bg-opacity-60 backdrop-blur-sm z-50 flex flex-col overflow-y-auto"
+            className="absolute inset-0 bg-black/60 text-slate-100 backdrop-blur-sm z-50 flex flex-col overflow-y-auto"
             onClick={closeZoom}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            {isUsernameParam || groupDetails?.groupProfile ? (
-              <motion.img
-                src={isUsernameParam ? imageUrl : groupDetails?.groupProfile}
-                initial={initialMotionImgStyle}
-                animate={animateMotionImgStyle}
-                exit={exiteMotionImgStyle}
-                transition={{ duration: 0.4 }}
-                onClick={(e) => e.stopPropagation()}
-                className="object-cover"
-              />
-            ) : (
-              <motion.div
-                initial={initialMotionImgStyle}
-                animate={animateMotionImgStyle}
-                exit={exiteMotionImgStyle}
-                transition={{ duration: 0.4 }}
-                onClick={(e) => e.stopPropagation()}
-                className="capitalize text-6xl p-2 rounded-full bg-[#255487] w-[40px] h-[40px] flex justify-center items-center"
-              >
-                {groupDetails?.groupName[0]}
-              </motion.div>
-            )}
+            <div className="my-auto py-10 flex flex-col items-center justify-center">
+              {isUsernameParam || groupDetails?.groupProfile ? (
+                <motion.img
+                  src={isUsernameParam ? imageUrl : groupDetails?.groupProfile}
+                  initial={initialMotionImgStyle}
+                  animate={animateMotionImgStyle}
+                  exit={exiteMotionImgStyle}
+                  transition={{ duration: 0.3 }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="object-cover shadow-2xl border border-white/20"
+                />
+              ) : (
+                <motion.div
+                  initial={initialMotionImgStyle}
+                  animate={animateMotionImgStyle}
+                  exit={exiteMotionImgStyle}
+                  transition={{ duration: 0.3 }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="capitalize text-6xl font-bold rounded-full bg-blue-600 text-white w-[300px] h-[300px] flex justify-center items-center shadow-2xl"
+                >
+                  {groupDetails?.groupName ? groupDetails?.groupName[0] : "?"}
+                </motion.div>
+              )}
 
-            {groupDetails && !isUsernameParam && (
-              <GroupMembers groupDetails={groupDetails} userId={userId} />
-            )}
+              {groupDetails && !isUsernameParam && (
+                <div
+                  onClick={(e) => e.stopPropagation()}
+                  className="w-full max-w-sm mt-6"
+                >
+                  <GroupMembers groupDetails={groupDetails} userId={userId} />
+                </div>
+              )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

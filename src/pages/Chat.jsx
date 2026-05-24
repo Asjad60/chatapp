@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { getContextData } from "../context/AuthProvider";
 import { IoIosSend } from "react-icons/io";
+import { IoHappyOutline } from "react-icons/io5";
 import ChatList from "../components/core/Chat/ChatList";
 import { getAllChats } from "../services/operations/chatAPI";
 import Button from "../components/Button";
@@ -11,6 +12,7 @@ import { useDispatch } from "react-redux";
 import { removeNewMessagesAlert } from "../slices/chatSlice";
 import ChatProfileHeader from "../components/core/Chat/ChatProfileHeader";
 import { fetchGroupMessages } from "../services/operations/groupAPI";
+import { toast } from "react-hot-toast";
 
 const Chat = () => {
   const { user, setLastChatWith } = getContextData();
@@ -69,7 +71,6 @@ const Chat = () => {
 
   const handleNewMessage = useCallback(
     (data) => {
-      // console.log(data);
       if (!isGroupName) {
         if (data.receiver === id || data.sender === id) {
           setMessages((prevMessages) => [...prevMessages, data]);
@@ -108,7 +109,6 @@ const Chat = () => {
       }
     } else {
       const result = await fetchGroupMessages(id, pageNumber, 50);
-      console.log("result: and page: ", result, page);
       if (result) {
         setMessages((prev) => {
           const existingIds = new Set(prev.map((msg) => msg._id));
@@ -131,7 +131,7 @@ const Chat = () => {
 
   const handleOnUserTyping = useCallback(
     (data) => {
-      const { sender, isTyping, username, groupId, receiver } = data;
+      const { sender, isTyping, username, groupId } = data;
       if (isGroupName && groupId === id) {
         setTypingUsers((prev) => {
           if (isTyping) {
@@ -144,7 +144,7 @@ const Chat = () => {
         setTypingUsers(isTyping ? [sender] : []);
       }
     },
-    [id]
+    [id, isGroupName]
   );
 
   const handleTypeMessage = () => {
@@ -193,7 +193,7 @@ const Chat = () => {
       socket.off("message_seen", handleMessageSeen);
       if (isGroupName) socket.emit("leave_room", { groupId: id });
     };
-  }, [socket, handleOnUserTyping, handleNewMessage, handleMessageSeen]);
+  }, [socket, handleOnUserTyping, handleNewMessage, handleMessageSeen, id, isGroupName]);
 
   useEffect(() => {
     scrollToBottom();
@@ -205,7 +205,6 @@ const Chat = () => {
 
     const ChatContainerScroll = () => {
       if (paginationData.hasNextPage && container.scrollTop === 0) {
-        console.log("called");
         setPage((prev) => prev + 1);
       }
     };
@@ -219,64 +218,93 @@ const Chat = () => {
 
   return (
     <section
-      className="w-full h-full flex flex-col  bg-cover bg-center bg-no-repeat "
+      className="w-full h-full flex flex-col dotted-bg font-comfortaa overflow-hidden relative"
       ref={containerRef}
     >
-      <div className="bg-[rgba(0,0,0,0.2)] relative h-full pb-1 ">
-        <ChatProfileHeader ref={containerRef} userId={user._id} />
+      {/* Header Profile Bar */}
+      <ChatProfileHeader ref={containerRef} userId={user._id} />
 
-        <div
-          className="h-[calc(100dvh-140px)] pb-1 overflow-y-auto pt-1"
-          ref={chatContainer}
-        >
-          {!loading ? (
-            <>
-              <ChatList messages={messages} userId={user._id} />
-              {typingUsers.length > 0 && (
-                <div className="p-2 bg-black/60 w-[100px] rounded-lg mt-3 ml-1.5">
-                  {typingUsers?.map((user, i) => (
-                    <div className="" key={i}>
-                      {user && isGroupName && (
-                        <span className="font-bold text-yellow-600 text-sm font-inter">
-                          {user}
-                        </span>
-                      )}
-                      <div className="typing-loader ml-8 mt-2"></div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="w-full h-full flex justify-center items-center">
-              <div className="loader"></div>
-            </div>
-          )}
-          <div ref={ref} />
-        </div>
-        <div className="form-style p-2 flex items-center gap-2 w-full">
-          <SendAttchments setLastChatWith={setLastChatWith} id={id} />
-          <form onSubmit={handleSubmit} className="flex gap-4 w-full">
-            <div className="flex items-center w-full gap-2">
-              <input
-                type="text"
-                name="content"
-                className="bg-transparent w-full outline-none py-2 text-white  placeholder:text-white"
-                onChange={(e) => {
-                  setContent(e.target.value);
-                  handleTypeMessage();
-                }}
-                placeholder="Enter Message"
-                value={content}
-                autoComplete="off"
-                ref={inputRef}
-              />
-              <Button type="submit" customClass={"p-2 p rounded-full"}>
-                <IoIosSend size={25} />
-              </Button>
-            </div>
-          </form>
-        </div>
+      {/* Messages Panel Container */}
+      <div
+        className="flex-grow overflow-y-auto py-6 light-scrollbar relative z-10"
+        ref={chatContainer}
+      >
+        {!loading ? (
+          <>
+            <ChatList messages={messages} userId={user._id} />
+            
+            {/* Dynamic typing indicator card */}
+            {typingUsers.length > 0 && (
+              <div className="p-3 bg-white border border-slate-100 rounded-2xl chat-shadow-sm w-fit mt-4 ml-6 flex items-center gap-3">
+                {typingUsers?.map((u, i) => (
+                  <div className="flex items-center gap-2" key={i}>
+                    {isGroupName && (
+                      <span className="font-bold text-[#0047e1] text-[10px]">
+                        {u} is typing
+                      </span>
+                    )}
+                    {!isGroupName && (
+                      <span className="font-bold text-[#0047e1] text-[10px]">
+                        Typing
+                      </span>
+                    )}
+                  </div>
+                ))}
+                <div className="light-typing-loader"></div>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="w-full h-full flex justify-center items-center">
+            <div className="loader !border-[#0047e1]"></div>
+          </div>
+        )}
+        <div ref={ref} />
+      </div>
+
+      {/* Footer Text Bar */}
+      <div className="p-4 bg-transparent w-full flex items-center gap-3 shrink-0 z-10">
+        
+        {/* Attachment upload selector */}
+        <SendAttchments setLastChatWith={setLastChatWith} id={id} />
+
+        <form onSubmit={handleSubmit} className="flex-1 flex gap-3">
+          {/* Main message input pill */}
+          <div className="flex-grow relative flex items-center bg-white rounded-2xl px-4 py-2 border border-slate-100 chat-shadow-md">
+            <input
+              type="text"
+              name="content"
+              className="w-full bg-transparent outline-none border-none py-1.5 text-slate-800 text-xs font-semibold placeholder:text-slate-400"
+              onChange={(e) => {
+                setContent(e.target.value);
+                handleTypeMessage();
+              }}
+              placeholder="Type a message..."
+              value={content}
+              autoComplete="off"
+              ref={inputRef}
+            />
+
+            {/* Emoji Trigger */}
+            <button
+              type="button"
+              onClick={() => toast.success("Emoji selector coming soon!")}
+              className="p-1 text-slate-400 hover:text-slate-600 transition-colors duration-150 cursor-pointer shrink-0"
+              title="Add Emoji"
+            >
+              <IoHappyOutline size={20} />
+            </button>
+          </div>
+
+          {/* Paperplane Circular Send Trigger */}
+          <button
+            type="submit"
+            className="h-11 w-11 shrink-0 rounded-full bg-[#0047e1] text-white flex items-center justify-center hover:bg-blue-700 active:scale-95 transition-all duration-150 shadow-md shadow-blue-500/10 cursor-pointer"
+            title="Send Message"
+          >
+            <IoIosSend size={20} />
+          </button>
+        </form>
       </div>
     </section>
   );

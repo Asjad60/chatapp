@@ -27,6 +27,13 @@ export const initializeSocket = async (server, app) => {
       methods: ["GET", "POST", "PUT", "DELETE"],
       credentials: true,
     },
+    // Browser background tabs throttle JS timers, so default ping values
+    // (25s interval / 20s timeout) cause false disconnects when the user
+    // switches tabs or minimises the window.
+    // 60s interval + 120s timeout keeps the connection alive across
+    // normal tab-switch scenarios while still detecting truly dead clients.
+    pingInterval: 60000,  // send a ping every 60 s (default: 25 000)
+    pingTimeout: 120000,  // wait up to 120 s for a pong (default: 20 000)
   });
   app.set("io", io);
 
@@ -49,7 +56,11 @@ export const initializeSocket = async (server, app) => {
     userSocketIDs.set(userId.toString(), socket.id);
     onlineUsers.add(userId.toString());
 
+    // Broadcast updated online list to ALL clients
     io.emit(USER_STATUS, Array.from(onlineUsers));
+    // Also send directly to the connecting socket so it gets the list
+    // even if the broadcast and the client listener registration race.
+    socket.emit(USER_STATUS, Array.from(onlineUsers));
 
     socket.on(NEW_MESSAGE, async ({ sender, receiver, content }) => {
       try {
@@ -182,11 +193,15 @@ export const initializeSocket = async (server, app) => {
       }
     });
 
+    socket.on("get_online_users", () => {
+      socket.emit(USER_STATUS, Array.from(onlineUsers));
+    });
+
     socket.on("disconnect", () => {
       console.log("User Disconnected " + socket.user.email, socket.id);
       userSocketIDs.delete(userId.toString());
       onlineUsers.delete(userId.toString());
-      io.emit("user_status", Array.from(onlineUsers));
+      io.emit(USER_STATUS, Array.from(onlineUsers));
     });
   });
 };

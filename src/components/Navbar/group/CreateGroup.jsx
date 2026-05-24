@@ -1,19 +1,20 @@
 import { useEffect, useState } from "react";
 import { getMyFriends } from "../../../services/operations/userAPI";
 import FriendsList from "./FriendsList";
-import Button from "../../Button";
 import { createGroup } from "../../../services/operations/groupAPI";
 import ImageUpload from "../../ImageUpload";
+import { IoImagesOutline } from "react-icons/io5";
 
 const CreateGroup = ({ setIsCreatingGroup }) => {
   const [friends, setFriends] = useState([]);
   const [selectedFriends, setSelectedFriends] = useState([]);
   const [groupName, setGroupName] = useState("");
   const [file, setFile] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleCreateGroup = async (e) => {
     e.preventDefault();
-    console.log(groupName, selectedFriends);
+    setLoading(true);
 
     const formData = new FormData();
     formData.append("groupName", groupName);
@@ -21,7 +22,7 @@ const CreateGroup = ({ setIsCreatingGroup }) => {
     formData.append("groupProfile", file);
 
     await createGroup(formData);
-
+    setLoading(false);
     setIsCreatingGroup(false);
   };
 
@@ -35,31 +36,48 @@ const CreateGroup = ({ setIsCreatingGroup }) => {
   }, []);
 
   return (
-    <div>
-      <div className="flex flex-col gap-1 mb-4">
-        <h3 className="text-xl font-bold font-edu-sa">Create Group</h3>
-        <p className="text-xs text-slate-400">
-          Please Enter group name and add a member to create a group
+    <div className="flex flex-col gap-4">
+      <div>
+        <h3 className="text-xs font-extrabold text-slate-800">Create a Group</h3>
+        <p className="text-[11px] text-slate-400 mt-0.5">
+          Add a name, photo, and pick your friends
         </p>
       </div>
-      <form onSubmit={handleCreateGroup}>
-        <div className="flex gap-2 items-center">
-          <ImageUpload setFile={setFile} />
+
+      <form onSubmit={handleCreateGroup} className="flex flex-col gap-3">
+        {/* Image + Name row */}
+        <div className="flex gap-3 items-center">
+          <div className="shrink-0">
+            <ImageUpload setFile={setFile} />
+          </div>
           <input
             type="text"
-            className="form-style"
-            placeholder="Enter Group Name"
+            className="flex-1 bg-white border border-slate-200 focus:border-[#0047e1] focus:bg-white rounded-xl px-3 py-2 text-xs text-slate-800 font-semibold placeholder:text-slate-400 outline-none transition-all duration-200 shadow-sm"
+            placeholder="Group name..."
             onChange={(e) => setGroupName(e.target.value)}
             required
           />
         </div>
-        <FriendsList
-          friends={friends}
-          setSelectedFriends={setSelectedFriends}
-          selectedFriends={selectedFriends}
-        />
 
-        <Button customClass={"p-2 mt-2"}>Submit</Button>
+        {/* Friends list */}
+        <div>
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            Add Members
+          </span>
+          <FriendsList
+            friends={friends}
+            setSelectedFriends={setSelectedFriends}
+            selectedFriends={selectedFriends}
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-2.5 bg-[#0047e1] hover:bg-blue-700 active:scale-[0.98] text-white font-bold rounded-2xl text-xs transition-all duration-200 shadow-md shadow-blue-500/20 cursor-pointer disabled:opacity-60"
+        >
+          {loading ? "Creating..." : "Create Group"}
+        </button>
       </form>
     </div>
   );

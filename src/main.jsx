@@ -15,16 +15,16 @@ const store = configureStore({
 });
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <Provider store={store}>
+  // <React.StrictMode>
+  <BrowserRouter>
+    <Provider store={store}>
+      <AuthProvider>
         <SocketProvider>
-          <AuthProvider>
-            <App />
-            <Toaster />
-          </AuthProvider>
+          <App />
+          <Toaster />
         </SocketProvider>
-      </Provider>
-    </BrowserRouter>
-  </React.StrictMode>
+      </AuthProvider>
+    </Provider>
+  </BrowserRouter>
+  // </React.StrictMode>
 );

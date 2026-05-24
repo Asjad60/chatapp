@@ -2,42 +2,78 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const FriendsLink = ({ friend, id, newMessageAlert }) => {
+  const isSelected = id === friend._id;
+
+  // Let's compute a dynamic time and message snippet for premium display
+  const isOnline = friend.status === "online";
+  const statusText = isOnline ? "Active now" : "Offline";
+  const lastMessageMock = isOnline
+    ? "Yeah, the design looks amazing..."
+    : "Let's catch up later!";
+
+  const timeMock = isOnline ? "Just now" : "Yesterday";
+
   return (
-    <div
-      className={`${
-        id === friend._id && "border border-[#1a2c4d]"
-      } p-2 rounded-lg`}
+    <Link
+      to={`/chat/${friend._id}?username=${encodeURIComponent(
+        friend.username,
+      )}&imageUrl=${encodeURIComponent(friend.image.url)}`}
+      className={`block w-full rounded-2xl transition-all duration-200 cursor-pointer ${
+        isSelected
+          ? "bg-[#e1eafd] border border-blue-100/60 chat-shadow-sm"
+          : "hover:bg-slate-50 border border-transparent"
+      } p-3`}
     >
-      <Link
-        to={`/chat/${friend._id}?username=${encodeURIComponent(
-          friend.username
-        )}&imageUrl=${encodeURIComponent(friend.image.url)}`}
-      >
-        <div className="relative flex justify-between items-center">
-          <div className={`flex gap-2 items-center`}>
-            <picture>
-              <img
-                src={friend.image.url}
-                alt={friend.username}
-                className="w-[40px] h-[40px] object-cover rounded-full"
-                loading="lazy"
-              />
-            </picture>
-            <span className="capitalize text-sm">{friend.username}</span>
-          </div>
-          {newMessageAlert && (
-            <span className="bg-[green]/30 rounded-full px-2 text-sm">
-              {newMessageAlert.count}
-            </span>
+      <div className="flex items-center gap-3 relative w-full">
+        {/* Avatar Area with Status Dot */}
+        <div className="relative shrink-0">
+          <picture>
+            <img
+              src={friend.image.url}
+              alt={friend.username}
+              className="w-11 h-11 object-cover rounded-full shadow-sm border border-slate-100"
+              loading="lazy"
+            />
+          </picture>
+          {isOnline && (
+            <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
           )}
-          <span
-            className={`ml-2 h-2 w-2 rounded-full absolute -left-2 -top-1 ${
-              friend.status === "online" ? "bg-green-500" : "hidden"
-            }`}
-          ></span>
         </div>
-      </Link>
-    </div>
+
+        {/* Info Area */}
+        <div className="flex flex-col flex-grow overflow-hidden pr-2">
+          {/* Username & Time */}
+          <div className="flex items-center justify-between w-full">
+            <span
+              className={`capitalize text-xs font-bold truncate ${
+                isSelected ? "text-[#0047e1]" : "text-slate-800"
+              }`}
+            >
+              {friend.username}
+            </span>
+            {/* <span
+              className={`text-[9px] shrink-0 font-semibold ${
+                newMessageAlert ? "text-[#0047e1] font-bold" : "text-slate-400"
+              }`}
+            >
+              {timeMock}
+            </span> */}
+          </div>
+
+          {/* Last Message or Status */}
+          <div className="flex items-center justify-between w-full mt-0.5">
+            {/* <p className="text-[10px] text-slate-400 truncate flex-grow pr-1">
+              {lastMessageMock}
+            </p> */}
+            {newMessageAlert && (
+              <span className="shrink-0 bg-[#0047e1] text-white text-[8px] font-bold rounded-full h-4 min-w-4 px-1 flex items-center justify-center">
+                {newMessageAlert.count}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    </Link>
   );
 };
 

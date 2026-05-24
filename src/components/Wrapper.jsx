@@ -41,20 +41,19 @@ const Wrapper = () => {
       if (sender === id) return;
       dispatch(setNewMessageAlert({ sender }));
     },
-    [id]
+    [id],
   );
 
   const handleReadNotifications = useCallback((data) => {
     console.log("updated Noptification => ", data);
     setNotifications((prev) =>
       prev.map((item) =>
-        item._id === data._id ? { ...item, read: data.read } : item
-      )
+        item._id === data._id ? { ...item, read: data.read } : item,
+      ),
     );
   }, []);
 
   useEffect(() => {
-    socket.connect();
     socket.on("notification", gettingNotifications);
     socket.on("new_message_alert", handleNewMessageAlert);
     socket.on("read_notification", handleReadNotifications);
@@ -64,34 +63,53 @@ const Wrapper = () => {
       socket.off("read_notification", handleReadNotifications);
       socket.disconnect();
     };
-  }, [
-    socket,
-    gettingNotifications,
-    handleNewMessageAlert,
-    handleReadNotifications,
-  ]);
+  }, [gettingNotifications, handleNewMessageAlert, handleReadNotifications]);
 
   useEffect(() => {
     fetchNotifications();
   }, []);
 
   return (
-    <div className="w-full flex flex-col items-center justify-center">
-      {/* <Navbar /> */}
-      <div className="relative w-full h-[100dvh] border border-gray-600/30 rounded-b-lg flex z-10">
-        <div className="sm:max-w-[350px] sm:border-r border-gray-600/30 w-full overflow-hidden sm:static absolute inset-0 z-[11] ">
+    <div className="w-full flex flex-col items-center justify-center bg-[#f4f7fc] min-h-[100dvh]">
+      <div className="relative w-full h-[100dvh] flex z-10 bg-[#f4f7fc] overflow-hidden">
+        {/* Column 1: Leftmost Navigation Sidebar (Navbar) */}
+        <div className="hidden md:flex w-[240px] h-full bg-[#f4f7fc] border-r border-slate-200/80 shrink-0">
           <Navbar />
+        </div>
+
+        {/* Column 2: Middle-left Chat List & Search (UsersSidebar) */}
+        {/*
+          Mobile visibility rules:
+          - Show when at "/" (home / chats list)
+          - Show when at "/?type=groups" (groups list)
+          - HIDE when inside "/chat/:id" (active chat/group chat)
+          Desktop: always show (md:flex)
+        */}
+        <div
+          className={`${
+            location.pathname !== "/" ? "hidden md:flex" : "flex"
+          } w-full md:w-[320px] h-full bg-[#f8f9fb] border-r border-slate-200/60 flex-col shrink-0 overflow-hidden relative`}
+        >
+          {/* Mobile Navigation Header */}
+          <div className="md:hidden block w-full bg-[#f4f7fc] border-b border-slate-100">
+            <Navbar isMobileHeader={true} />
+          </div>
           <UsersSidebar />
         </div>
+
+        {/* Column 3: Active Chat Feed Area (Outlet) */}
+        {/*
+          Mobile visibility rules:
+          - Show when inside "/chat/:id"
+          - Hide at "/" and "/?type=groups" (show sidebar instead)
+          Desktop: always show
+        */}
         <div
-          className={`w-full h-full [background:radial-gradient(110%_110%_at_70%_5%,#000_40%,#29536E_100%)] ${
-            location.pathname !== "/" ? "z-[20]" : "z-[5]"
-          } absolute sm:relative inset-0 `}
+          className={`${
+            location.pathname !== "/" ? "flex" : "hidden md:flex"
+          } flex-1 h-full relative overflow-hidden bg-[#f4f7fc]`}
         >
-          <div className="absolute inset-0 opacity-20 z-0 h-full w-full bg-[linear-gradient(to_right,rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.2)_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
-          <div className="relative w-full h-full">
-            <Outlet />
-          </div>
+          <Outlet />
         </div>
       </div>
     </div>

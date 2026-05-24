@@ -15,6 +15,7 @@ const Signup = lazy(() => import("./pages/Signup"));
 const Chat = lazy(() => import("./pages/Chat"));
 const Notification = lazy(() => import("./pages/Notification"));
 const Wrapper = lazy(() => import("./components/Wrapper"));
+const Discovery = lazy(() => import("./pages/Discovery"));
 
 function App() {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ function App() {
   }, []);
 
   return (
-    <main className="App flex flex-col h-[100dvh] font-comfortaa [background:radial-gradient(110%_110%_at_50%_10%,#000_40%,#29536E_100%)]">
+    <main className="App flex flex-col h-[100dvh] font-comfortaa">
       <div className="z-10">
         <Suspense
           fallback={
@@ -81,6 +82,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/chat/:id" element={<Chat />} />
               <Route path="/notification" element={<Notification />} />
+              <Route path="/discovery" element={<Discovery />} />
             </Route>
 
             <Route path="*" element={<Error />} />

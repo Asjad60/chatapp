@@ -65,12 +65,14 @@ const SendAttchments = ({ setLastChatWith, id }) => {
 
   return (
     <>
-      <Button
-        customClass={"cursor-pointer p-2 bg-transparent border border-blue-800"}
+      <button
+        type="button"
         onClick={selectImage}
+        className="h-11 w-11 shrink-0 rounded-full border border-blue-200 text-blue-600 bg-white flex items-center justify-center font-comfortaa text-xl font-bold cursor-pointer hover:bg-blue-50 transition-all duration-150 shadow-sm"
+        title="Add Attachments"
       >
-        <GrGallery size={20} />
-      </Button>
+        +
+      </button>
       {previewImg?.length > 0 && (
         <div className="flex flex-col items-center justify-center gap-4 absolute inset-0 bg-slate-950/60 z-10 overflow-y-auto">
           <picture className="flex flex-wrap gap-2 justify-center">
