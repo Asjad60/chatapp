@@ -61,7 +61,6 @@ const Wrapper = () => {
       socket.off("notification", gettingNotifications);
       socket.off("new_message_alert", handleNewMessageAlert);
       socket.off("read_notification", handleReadNotifications);
-      socket.disconnect();
     };
   }, [gettingNotifications, handleNewMessageAlert, handleReadNotifications]);
 
