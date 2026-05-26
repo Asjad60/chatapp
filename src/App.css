@@ -112,7 +112,7 @@
 }
 
 .light-page-bg {
-  @apply bg-[#f3f4f6] text-slate-800 flex items-center justify-center p-4 sm:p-6 md:p-8 font-comfortaa overflow-y-auto;
+  @apply bg-[#f3f4f6] text-slate-800 flex items-center justify-center p-4 sm:p-6 md:p-8 font-comfortaa overflow-y-auto min-h-dvh;
 }
 
 .light-card-frame {
