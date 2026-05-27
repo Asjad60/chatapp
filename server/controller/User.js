@@ -1,6 +1,10 @@
 import { User } from "../models/User.js";
 import { Notification } from "../models/Notification.js";
 import { NOTIFICATION, REFETCH_FRINEDS } from "../constants/events.js";
+import bcrypt from "bcrypt";
+import { uploadFileToCloud } from "../utils/uploadImgToCloud.js";
+import { v2 as cloudinary } from "cloudinary";
+import fs from "fs";
 
 const getAllUsers = async (req, res) => {
   try {
@@ -252,6 +256,106 @@ const getMyProfile = async (req, res) => {
   }
 };
 
+const updateProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { username, currentPassword, newPassword } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // 1. Update username if provided
+    if (username && username.trim() !== "") {
+      user.username = username.trim();
+    }
+
+    // 2. Update profile picture if uploaded
+    if (req.file) {
+      const profile = req.file.path;
+      try {
+        // Upload new image to Cloudinary
+        const uploadImg = await uploadFileToCloud(
+          profile,
+          process.env.CLOUD_FOLDER_NAME
+        );
+
+        // Delete old image from Cloudinary if it exists
+        if (user.image && user.image.publicId) {
+          try {
+            await cloudinary.uploader.destroy(user.image.publicId);
+          } catch (destroyError) {
+            console.log("Error destroying old image on Cloudinary:", destroyError.message);
+          }
+        }
+
+        user.image = {
+          url: uploadImg.secure_url,
+          publicId: uploadImg.public_id,
+        };
+      } catch (uploadError) {
+        console.log("Error uploading new profile picture:", uploadError);
+        if (fs.existsSync(profile)) {
+          fs.unlinkSync(profile);
+        }
+        return res.status(500).json({
+          success: false,
+          message: "Failed to upload new profile image",
+          error: uploadError.message,
+        });
+      }
+    }
+
+    // 3. Update password if requested
+    if (newPassword && newPassword.trim() !== "") {
+      if (!currentPassword) {
+        return res.status(400).json({
+          success: false,
+          message: "Current password is required to change password",
+        });
+      }
+
+      const isMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!isMatch) {
+        return res.status(400).json({
+          success: false,
+          message: "Incorrect current password",
+        });
+      }
+
+      user.password = newPassword; // The pre-save hook will hash it!
+    }
+
+    await user.save();
+
+    // Populate friends to match getMyProfile return structure
+    const updatedUser = await User.findById(userId)
+      .select("-password")
+      .populate({
+        path: "friends",
+        select: "-password",
+      })
+      .exec();
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while updating the profile",
+      error: error.message,
+    });
+  }
+};
+
 export {
   getAllUsers,
   getMyFriends,
@@ -259,4 +363,6 @@ export {
   sendFriendRequest,
   getNotifications,
   socketFriendRequestHandler,
+  updateProfile,
 };
+

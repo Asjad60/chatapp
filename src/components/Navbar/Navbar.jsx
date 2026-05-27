@@ -56,6 +56,8 @@ const Navbar = ({ isMobileHeader = false }) => {
     isGroupChat;
   const isActiveDiscovery = location.pathname === "/discovery";
   const isActiveNotification = location.pathname === "/notification";
+  const isActiveProfile = location.pathname === "/profile";
+
 
   if (isMobileHeader) {
     return (
@@ -69,6 +71,21 @@ const Navbar = ({ isMobileHeader = false }) => {
           </span>
         </div>
         <div className="flex items-center gap-3">
+          {/* Profile Avatar on Mobile */}
+          <Link
+            to="/profile"
+            className="w-7 h-7 rounded-full overflow-hidden border border-slate-200 shadow-sm shrink-0 hover:scale-105 active:scale-95 transition-transform"
+            title="My Profile"
+          >
+            {user?.image?.url ? (
+              <img src={user.image.url} className="w-full h-full object-cover" alt="Profile" />
+            ) : (
+              <div className="w-full h-full bg-blue-100 flex items-center justify-center text-[#0047e1] font-bold text-xs uppercase">
+                {user?.username ? user.username[0] : "?"}
+              </div>
+            )}
+          </Link>
+
           {/* Search trigger */}
           <button
             onClick={() => setSearchUser(true)}
@@ -84,6 +101,7 @@ const Navbar = ({ isMobileHeader = false }) => {
             className="relative p-1.5 text-slate-500 hover:text-blue-600 bg-slate-50 hover:bg-blue-50 rounded-xl transition-all duration-150"
             title="Notifications"
           >
+
             <IoNotifications size={18} />
             {unreadNotificationsCount > 0 && (
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] h-4 w-4 rounded-full flex items-center justify-center font-bold">
@@ -242,17 +260,18 @@ const Navbar = ({ isMobileHeader = false }) => {
           </Link>
 
           {/* Profile Tab */}
-          <button
-            onClick={() => {
-              if (user) {
-                toast.success(`Logged in as ${user.username}`);
-              }
-            }}
-            className="flex items-center w-full gap-3.5 px-4 py-3 rounded-2xl font-bold text-slate-500 hover:bg-slate-200/50 hover:text-slate-800 transition-all duration-200 cursor-pointer"
+          <Link
+            to="/profile"
+            className={`flex items-center w-full gap-3.5 px-4 py-3 rounded-2xl font-bold transition-all duration-200 ${
+              isActiveProfile
+                ? "bg-[#e1eafd] text-[#0047e1] shadow-sm"
+                : "text-slate-500 hover:bg-slate-200/50 hover:text-slate-800"
+            }`}
           >
             <IoPersonOutline size={19} />
             <span className="text-xs text-left">Profile</span>
-          </button>
+          </Link>
+
         </nav>
       </div>
 

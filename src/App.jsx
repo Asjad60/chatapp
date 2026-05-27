@@ -16,6 +16,7 @@ const Chat = lazy(() => import("./pages/Chat"));
 const Notification = lazy(() => import("./pages/Notification"));
 const Wrapper = lazy(() => import("./components/Wrapper"));
 const Discovery = lazy(() => import("./pages/Discovery"));
+const Profile = lazy(() => import("./pages/Profile"));
 
 function App() {
   const navigate = useNavigate();
@@ -83,6 +84,7 @@ function App() {
               <Route path="/chat/:id" element={<Chat />} />
               <Route path="/notification" element={<Notification />} />
               <Route path="/discovery" element={<Discovery />} />
+              <Route path="/profile" element={<Profile />} />
             </Route>
 
             <Route path="*" element={<Error />} />

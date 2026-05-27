@@ -14,6 +14,7 @@ export const userEndpoints = {
   RESET_PASSWORD_TOKEN: `${BASE_URL}/user/resetPassword`,
   UPDATE_PASSWORD: `${BASE_URL}/user/updatePassword`,
   GET_MY_PROFILE: `${BASE_URL}/user/me`,
+  UPDATE_PROFILE: `${BASE_URL}/user/updateProfile`,
 };
 
 export const chatEndpoints = {

@@ -6,6 +6,7 @@ import {
   getMyProfile,
   getNotifications,
   sendFriendRequest,
+  updateProfile,
 } from "../controller/User.js";
 import { upload } from "../config/multer-config.js";
 import { isAuthenticated } from "../middleware/auth.js";
@@ -24,6 +25,8 @@ router.post("/logout", isAuthenticated, logoutUser);
 router.get("/getAllUsers", isAuthenticated, getAllUsers);
 router.get("/me", isAuthenticated, getMyProfile);
 router.get("/getMyFriends", isAuthenticated, getMyFriends);
+router.put("/updateProfile", isAuthenticated, upload.single("profile"), updateProfile);
+
 
 // user notifications
 router.get("/getNotifications", isAuthenticated, getNotifications);

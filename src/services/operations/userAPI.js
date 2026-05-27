@@ -131,3 +131,28 @@ export const getMyProfile = async (setToken, setUser, navigate) => {
     navigate("/login");
   }
 };
+
+export const updateUserProfile = async (formData, setUser) => {
+  const toastId = toast.loading("Updating profile...");
+  try {
+    const response = await apiConnector(
+      userEndpoints.UPDATE_PROFILE,
+      "PUT",
+      null, // Do not pass headers so browser sets content-type multipart boundary automatically
+      formData
+    );
+    if (!response.success) {
+      throw new Error(response.message);
+    }
+    toast.success("Profile updated successfully!");
+    setUser(response.user);
+    localStorage.setItem("user", JSON.stringify(response.user));
+    toast.dismiss(toastId);
+    return response.user;
+  } catch (error) {
+    console.log("Error updating profile:", error);
+    toast.error(error.message || "Could not update profile");
+    toast.dismiss(toastId);
+    return null;
+  }
+};
