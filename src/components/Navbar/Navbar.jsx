@@ -153,14 +153,26 @@ const Navbar = ({ isMobileHeader = false }) => {
           </div>
         </div>
 
-        {/* "+ New Chat" Button */}
-        <button
-          onClick={() => setSearchUser(true)}
-          className="w-full flex items-center justify-center gap-2 py-3 bg-[#0047e1] text-white font-bold rounded-2xl hover:bg-blue-700 active:scale-[0.97] transition-all duration-150 shadow-md hover:shadow-lg shadow-blue-500/10 cursor-pointer"
-        >
-          <span className="text-xl leading-none font-light">+</span>
-          <span className="text-sm">New Chat</span>
-        </button>
+        {/* Actions Section */}
+        <div className="flex flex-col gap-2">
+          {/* "+ New Chat" Button */}
+          <button
+            onClick={() => setSearchUser(true)}
+            className="w-full flex items-center justify-center gap-2 py-3 bg-[#0047e1] text-white font-bold rounded-2xl hover:bg-blue-700 active:scale-[0.97] transition-all duration-150 shadow-md hover:shadow-lg shadow-blue-500/10 cursor-pointer"
+          >
+            <span className="text-xl leading-none font-light">+</span>
+            <span className="text-sm">New Chat</span>
+          </button>
+
+          {/* "New Group" Button */}
+          <button
+            onClick={() => setIsCreatingGroup(true)}
+            className="w-full flex items-center justify-center gap-2 py-3 bg-white text-[#0047e1] border border-blue-200/80 font-bold rounded-2xl hover:bg-blue-50/50 active:scale-[0.97] transition-all duration-150 shadow-sm cursor-pointer"
+          >
+            <GrGroup size={15} />
+            <span className="text-sm">New Group</span>
+          </button>
+        </div>
 
         {/* Navigation list */}
         <nav className="flex flex-col gap-1.5 mt-4">
