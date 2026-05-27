@@ -13,6 +13,9 @@ import { removeNewMessagesAlert } from "../slices/chatSlice";
 import ChatProfileHeader from "../components/core/Chat/ChatProfileHeader";
 import { fetchGroupMessages } from "../services/operations/groupAPI";
 import { toast } from "react-hot-toast";
+import messageSound from "../assets/message-sound.mp3";
+import { RiVoiceRecognitionFill } from "react-icons/ri";
+import EmojiPicker from "emoji-picker-react"
 
 const Chat = () => {
   const { user, setLastChatWith } = getContextData();
@@ -26,6 +29,8 @@ const Chat = () => {
   const [paginationData, setPaginationData] = useState({ hasNextPage: false });
   const [typingUsers, setTypingUsers] = useState([]);
   const [page, setPage] = useState(1);
+  const [isListening, setIsListening] = useState(false);
+  const [isEmojiOpen, setIsEmojiOpen] = useState(false);
 
   const [searchParams] = useSearchParams();
   const isGroupName = searchParams.has("groupname");
@@ -34,6 +39,35 @@ const Chat = () => {
   const inputRef = useRef(null);
   const typingTimeoutRef = useRef(null);
   const chatContainer = useRef(null);
+  const recognitionRef = useRef(null);
+  const emojiPickerRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Check if click was outside picker and outside the trigger button
+      if (
+        emojiPickerRef.current && 
+        !emojiPickerRef.current.contains(event.target) &&
+        !event.target.closest(".emoji-trigger-btn")
+      ) {
+        setIsEmojiOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, []);
+
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -75,9 +109,11 @@ const Chat = () => {
         if (data.receiver === id || data.sender === id) {
           setMessages((prevMessages) => [...prevMessages, data]);
           socket.emit("message_seen", { senderId: user._id, receiverId: id });
+          if (data.sender === id) new Audio(messageSound).play();
         }
       } else if (isGroupName && data.group === id) {
         setMessages((prevMessages) => [...prevMessages, data]);
+        if (data.sender === id) new Audio(messageSound).play();
       }
     },
     [id, user._id, isGroupName]
@@ -160,7 +196,7 @@ const Chat = () => {
 
       typingTimeoutRef.current = setTimeout(() => {
         socket.emit("typing", { ...obj, isTyping: false });
-      }, 1000);
+      }, 500);
     }
   };
 
@@ -169,7 +205,7 @@ const Chat = () => {
       setPage(1);
       setMessages([]);
       setPaginationData({ hasNextPage: false });
-      fetchChats(1);
+      fetchChats(1).then(()=> scrollToBottom());
       dispatch(removeNewMessagesAlert(id));
       socket.emit("message_seen", { senderId: user._id, receiverId: id });
       inputRef.current.focus();
@@ -216,6 +252,51 @@ const Chat = () => {
     };
   }, [paginationData.hasNextPage]);
 
+  const handleSpeechToText = useCallback(() => {
+    if (isListening) {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      setIsListening(false);
+      return;
+    }
+
+    try {
+      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+      recognitionRef.current = recognition;
+
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = Array.from(event.results)
+          .map((result) => result[0])
+          .map((result) => result.transcript)
+          .join('');
+        setContent(transcript);
+      };
+
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognition.start();
+    } catch (error) {
+      console.error('Speech recognition not supported:', error);
+      toast.error('Speech recognition not supported in this browser');
+      setIsListening(false);
+    }
+  }, [isListening]);
+
+
   return (
     <section
       className="w-full h-full flex flex-col dotted-bg font-comfortaa overflow-hidden relative"
@@ -232,7 +313,7 @@ const Chat = () => {
         {!loading ? (
           <>
             <ChatList messages={messages} userId={user._id} />
-            
+
             {/* Dynamic typing indicator card */}
             {typingUsers.length > 0 && (
               <div className="p-3 bg-white border border-slate-100 rounded-2xl chat-shadow-sm w-fit mt-4 ml-6 flex items-center gap-3">
@@ -264,7 +345,6 @@ const Chat = () => {
 
       {/* Footer Text Bar */}
       <div className="p-4 bg-transparent w-full flex items-center gap-3 shrink-0 z-10">
-        
         {/* Attachment upload selector */}
         <SendAttchments setLastChatWith={setLastChatWith} id={id} />
 
@@ -274,26 +354,62 @@ const Chat = () => {
             <input
               type="text"
               name="content"
-              className="w-full bg-transparent outline-none border-none py-1.5 text-slate-800 text-xs font-semibold placeholder:text-slate-400"
+              className="w-full bg-transparent outline-none border-none py-1.5 text-slate-800 text-sm font-semibold placeholder:text-slate-400"
               onChange={(e) => {
                 setContent(e.target.value);
                 handleTypeMessage();
               }}
-              placeholder="Type a message..."
+              placeholder={
+                isListening ? "Listening... Speak now..." : "Type a message..."
+              }
               value={content}
               autoComplete="off"
               ref={inputRef}
             />
 
+            {/* Speech to text button */}
+            <button
+              type="button"
+              onClick={handleSpeechToText}
+              className={`p-1 rounded-xl transition-all duration-150 cursor-pointer shrink-0 ${
+                isListening
+                  ? "text-red-500 bg-red-50 ring-2 ring-red-500/20 animate-pulse"
+                  : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
+              }`}
+              title={isListening ? "Stop Listening" : "Voice Input"}
+            >
+              <RiVoiceRecognitionFill size={20} />
+            </button>
+
             {/* Emoji Trigger */}
             <button
               type="button"
-              onClick={() => toast.success("Emoji selector coming soon!")}
-              className="p-1 text-slate-400 hover:text-slate-600 transition-colors duration-150 cursor-pointer shrink-0"
+              onClick={() => setIsEmojiOpen((prev) => !prev)}
+              className="emoji-trigger-btn p-1 text-slate-400 hover:text-slate-600 transition-colors duration-150 cursor-pointer shrink-0"
               title="Add Emoji"
             >
               <IoHappyOutline size={20} />
             </button>
+
+            {/* Float EmojiPicker absolutely above input pill on right side */}
+            {isEmojiOpen && (
+              <div 
+                ref={emojiPickerRef} 
+                className="absolute bottom-[calc(100%+12px)] right-3 z-50 shadow-2xl rounded-2xl overflow-hidden border border-slate-100/80 animate-fade-in"
+              >
+                <EmojiPicker
+                  onEmojiClick={(emojiObject) =>
+                    setContent((prev) => prev + emojiObject.emoji)
+                  }
+                  emojiStyle="native"
+                  open={isEmojiOpen}
+                  // previewConfig={{ showPreview: false }}
+                  lazyLoadEmojis={true}
+                  theme="light"
+                />
+              </div>
+            )}
+
           </div>
 
           {/* Paperplane Circular Send Trigger */}

@@ -291,10 +291,10 @@ const Profile = () => {
                   <label className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">
                     Email Address
                   </label>
-                  <span className="text-[8px] font-extrabold text-blue-600 bg-blue-50 rounded-full px-2 py-0.5 border border-blue-100 flex items-center gap-1">
+                  {/* <span className="text-[8px] font-extrabold text-blue-600 bg-blue-50 rounded-full px-2 py-0.5 border border-blue-100 flex items-center gap-1">
                     <IoCheckmarkCircleOutline size={10} />
                     Verified Primary
-                  </span>
+                  </span> */}
                 </div>
                 <div className="relative">
                   <IoMailOutline size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
