@@ -7,7 +7,11 @@ import Group from "../models/Group.js";
 export const getAllChats = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { receiverId } = req.body;
+    const { receiverId, page: _page, limit: _limit } = req.body;
+
+    const limit = Number(_limit) || 10;
+    const page = Number(_page) || 1;
+    const skip = (page - 1) * limit;
 
     const findReceiver = await User.findById(receiverId);
     if (!findReceiver) {
@@ -22,12 +26,27 @@ export const getAllChats = async (req, res) => {
         { sender: userId, receiver: receiverId },
         { sender: receiverId, receiver: userId },
       ],
+    }).skip(skip).limit(limit).sort({ createdAt: -1 }).lean();
+
+    const totalMessages = await Message.countDocuments({
+      $or: [
+        { sender: userId, receiver: receiverId },
+        { sender: receiverId, receiver: userId },
+      ],
     });
+
+    const hasNextPage = totalMessages > (page * limit);
 
     return res.status(200).json({
       success: true,
       message: "Messages Fetched",
-      messages,
+      messages: messages.reverse(),
+      pagination: {
+        totalMessages,
+        limit,
+        page,
+        hasNextPage,
+      },
     });
   } catch (error) {
     console.log(error);
@@ -62,22 +81,27 @@ export const sendAttachments = async (req, res) => {
       });
     }
 
-    const attachments = await Promise.all(
-      files.map((file) => {
-        return uploadFileToCloud(file.path, process.env.CLOUD_FOLDER_NAME);
-      })
-    ).catch((err) => {
+    let attachments;
+    try {
+      attachments = await Promise.all(
+        files.map((file) => {
+          return uploadFileToCloud(file.path, process.env.CLOUD_FOLDER_NAME);
+        })
+      );
+    } catch (err) {
       console.log("Attachments Uploading Error ", err);
       return res.status(403).json({
         success: false,
         message: "Attachments Uploading Error",
       });
-    });
+    }
 
-    // console.log("uploadFileToCloud => ", attachments);
-    const cloudURLnPublicId = attachments.map((file) => {
-      return { url: file.secure_url, public_id: file.public_id };
-    });
+    // Safe mapping with filters to prevent TypeErrors
+    const cloudURLnPublicId = (attachments || [])
+      .filter((file) => file && file.secure_url)
+      .map((file) => {
+        return { url: file.secure_url, public_id: file.public_id };
+      });
 
     const messageData = {
       content: "",
@@ -94,12 +118,20 @@ export const sendAttachments = async (req, res) => {
       messageData.group = groupId;
     }
 
-    if (receiverId) {
-      io.to(userSocketIDs.get(userId)).emit(NEW_MESSAGE, messageData);
-      io.to(userSocketIDs.get(receiverId)).emit(NEW_MESSAGE, messageData);
-      io.to(userSocketIDs.get(receiverId)).emit(NEW_MESSAGE_ALERT, {
-        sender: userId,
-      });
+    if (receiverId && userSocketIDs && io) {
+      const senderSocketId = typeof userSocketIDs.get === "function" ? userSocketIDs.get(userId.toString()) : null;
+      const receiverSocketId = typeof userSocketIDs.get === "function" ? userSocketIDs.get(receiverId.toString()) : null;
+
+      if (senderSocketId) {
+        io.to(senderSocketId).emit(NEW_MESSAGE, messageData);
+      }
+      // Only emit to receiver if receiverSocketId is online and exists in map
+      if (receiverSocketId && typeof userSocketIDs.has === "function" && userSocketIDs.has(receiverId.toString())) {
+        io.to(receiverSocketId).emit(NEW_MESSAGE, messageData);
+        io.to(receiverSocketId).emit(NEW_MESSAGE_ALERT, {
+          sender: userId,
+        });
+      }
     }
 
     const message = await Message.create(messageData);

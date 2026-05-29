@@ -2,7 +2,7 @@ import { toast } from "react-hot-toast";
 import { apiConnector } from "../apiConnector";
 import { chatEndpoints } from "../apis";
 
-export const getAllChats = async (receiverId) => {
+export const getAllChats = async (receiverId, page = 1, limit = 10) => {
   let result = null;
   try {
     result = await apiConnector(
@@ -11,7 +11,7 @@ export const getAllChats = async (receiverId) => {
       {
         "Content-Type": "application/json",
       },
-      { receiverId }
+      { receiverId, page, limit }
     );
 
     // console.log("getAllChats => ", result);
@@ -41,9 +41,10 @@ export const sendAttachments = async (formData, setAlbum, setPreviewImg) => {
       throw new Error(result.message);
     }
 
-    setAlbum([]);
-    setPreviewImg([]);
-    document.getElementById("album").value = "";
+    if (typeof setAlbum === "function") setAlbum([]);
+    if (typeof setPreviewImg === "function") setPreviewImg([]);
+    const albumInput = document.getElementById("album");
+    if (albumInput) albumInput.value = "";
   } catch (error) {
     console.log("sendAttachments API ERROR ===> ", error);
     toast.error(error.message);

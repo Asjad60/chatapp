@@ -1,6 +1,7 @@
 import React from "react";
 import { IoCheckmarkDoneSharp } from "react-icons/io5";
 import { Link, useSearchParams } from "react-router-dom";
+import AudioPlayer from "./AudioPlayer";
 
 const ChatList = ({ messages, userId }) => {
   const [searchParams] = useSearchParams();
@@ -141,35 +142,37 @@ const ChatList = ({ messages, userId }) => {
                 {/* Attachment Media Bubble */}
                 {msg.attachments?.length > 0 && (
                   <div className="flex flex-col gap-2 mt-1">
-                    {msg.attachments.map((file, j) => (
-                      <div
-                        key={`${file._id}_${j}`}
-                        className={`p-2 rounded-2xl overflow-hidden chat-shadow-sm ${
-                          isSentByCurrentUser
-                            ? "bg-[#0047e1]/10 border border-blue-100"
-                            : "bg-white"
-                        }`}
-                      >
-                        <Link
-                          to={file.url}
-                          target="_blank"
-                          className="block relative overflow-hidden rounded-xl"
+                    {msg.attachments.map((file, j) => {
+                      const isAudio = file.url.match(/\.(mp3|wav|m4a|ogg|webm)(\?.*)?$/i) || file.url.includes("/video/upload/");
+                      return (
+                        <div
+                          key={`${file._id}_${j}`}
+                          className={`p-1 rounded-2xl overflow-hidden ${
+                            isAudio
+                              ? ""
+                              : isSentByCurrentUser
+                              ? "bg-[#0047e1]/10 border border-blue-100 p-2 chat-shadow-sm"
+                              : "bg-white p-2 chat-shadow-sm"
+                          }`}
                         >
-                          <img
-                            src={file.url}
-                            alt="attachment"
-                            className="w-full max-h-[220px] object-cover hover:scale-[1.02] transition-transform duration-200"
-                          />
-                        </Link>
-                        {/* Styled Caption block if image caption fits */}
-                        {/* {isSentByCurrentUser && (
-                          <div className="p-2 text-[10px] text-slate-500 font-semibold italic">
-                            Thinking we could apply this sort of layout for the
-                            dashboard.
-                          </div>
-                        )} */}
-                      </div>
-                    ))}
+                          {isAudio ? (
+                            <AudioPlayer url={file.url} />
+                          ) : (
+                            <Link
+                              to={file.url}
+                              target="_blank"
+                              className="block relative overflow-hidden rounded-xl"
+                            >
+                              <img
+                                src={file.url}
+                                alt="attachment"
+                                className="w-full max-h-[220px] object-cover hover:scale-[1.02] transition-transform duration-200"
+                              />
+                            </Link>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
 
