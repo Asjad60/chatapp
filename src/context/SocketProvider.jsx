@@ -27,12 +27,13 @@ const SocketProvider = ({ children }) => {
         // for background tabs, which was causing false "offline" status.
         transports: ["websocket"],
         // Generous reconnection config — don't spam the server
-        reconnectionAttempts: 10,
+        reconnectionAttempts: 15,
         reconnectionDelay: 2000,
         reconnectionDelayMax: 10000,
         // Must be > server's pingTimeout (120 000 ms) so the client doesn't
         // give up before the server has a chance to send the next ping.
-        timeout: 130000,
+        // timeout: 130000,
+        timeout:100000
       }),
     [] // eslint-disable-line react-hooks/exhaustive-deps
   );

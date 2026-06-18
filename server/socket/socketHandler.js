@@ -32,8 +32,10 @@ export const initializeSocket = async (server, app) => {
     // switches tabs or minimises the window.
     // 60s interval + 120s timeout keeps the connection alive across
     // normal tab-switch scenarios while still detecting truly dead clients.
-    pingInterval: 60000,  // send a ping every 60 s (default: 25 000)
-    pingTimeout: 120000,  // wait up to 120 s for a pong (default: 20 000)
+    // pingInterval: 60000,  // send a ping every 60 s (default: 25 000)
+    // pingTimeout: 120000,  // wait up to 120 s for a pong (default: 20 000)
+    pingInterval: 25000,  // send a ping every 25 s (default: 25 000)
+    pingTimeout: 90000,  // wait up to 90 s for a pong (default: 20 000)
   });
   app.set("io", io);
 
