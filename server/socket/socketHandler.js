@@ -201,9 +201,11 @@ export const initializeSocket = async (server, app) => {
 
     socket.on("disconnect", () => {
       console.log("User Disconnected " + socket.user.email, socket.id);
-      userSocketIDs.delete(userId.toString());
-      onlineUsers.delete(userId.toString());
-      io.emit(USER_STATUS, Array.from(onlineUsers));
+      if (userSocketIDs.get(userId.toString()) === socket.id) {
+        userSocketIDs.delete(userId.toString());
+        onlineUsers.delete(userId.toString());
+        io.emit(USER_STATUS, Array.from(onlineUsers));
+      }
     });
   });
 };
