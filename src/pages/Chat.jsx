@@ -114,6 +114,7 @@ const Chat = () => {
         setLastChatWith(id);
       }
       inputRef.current.focus();
+      setTimeout(() => scrollToBottom("smooth"), 50);
     }
   };
 
@@ -123,9 +124,9 @@ const Chat = () => {
     return scrollHeight - scrollTop - clientHeight < 150;
   };
 
-  const scrollToBottom = () => {
+  const scrollToBottom = (behavior = "smooth") => {
     if (ref.current) {
-      ref.current.scrollIntoView({ behavior: "smooth" });
+      ref.current.scrollIntoView({ behavior });
     }
   };
 
@@ -136,10 +137,12 @@ const Chat = () => {
           setMessages((prevMessages) => [...prevMessages, data]);
           socket.emit("message_seen", { senderId: user._id, receiverId: id });
           if (data.sender === id) new Audio(messageSound).play();
+          setTimeout(() => scrollToBottom("smooth"), 50);
         }
       } else if (isGroupName && data.group === id) {
         setMessages((prevMessages) => [...prevMessages, data]);
         if (data.sender === id) new Audio(messageSound).play();
+        setTimeout(() => scrollToBottom("smooth"), 50);
       }
     },
     [id, user._id, isGroupName]
@@ -200,8 +203,12 @@ const Chat = () => {
 
     setTimeout(() => {
       if (container) {
-        const newScrollHeight = container.scrollHeight;
-        container.scrollTop = newScrollHeight - prevScrollHeight;
+        if (pageNumber === 1) {
+          scrollToBottom("auto");
+        } else {
+          const newScrollHeight = container.scrollHeight;
+          container.scrollTop = newScrollHeight - prevScrollHeight;
+        }
       }
     }, 50);
   };
@@ -246,7 +253,7 @@ const Chat = () => {
       setPage(1);
       setMessages([]);
       setPaginationData({ hasNextPage: false });
-      fetchChats(1).then(()=> scrollToBottom());
+      fetchChats(1);
       dispatch(removeNewMessagesAlert(id));
       socket.emit("message_seen", { senderId: user._id, receiverId: id });
       inputRef.current.focus();
@@ -273,8 +280,10 @@ const Chat = () => {
   }, [socket, handleOnUserTyping, handleNewMessage, handleMessageSeen, id, isGroupName]);
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, typingUsers]);
+    if (typingUsers.length > 0) {
+      scrollToBottom("smooth");
+    }
+  }, [typingUsers]);
 
   useEffect(() => {
     if (!chatContainer.current) return;
