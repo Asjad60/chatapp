@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { IoArrowBack, IoCheckmark, IoClose, IoNotifications } from "react-icons/io5";
 
 const Notification = () => {
-  const { notifications } = getContextData();
+  const { notifications, setNotifications } = getContextData();
   const socket = getSocket();
 
   const handleReadNotification = (notificationId) => {
@@ -13,6 +13,11 @@ const Notification = () => {
     );
     if (findNotification?.read) return;
     socket.emit("read_notification", { notificationId });
+    setNotifications((prev) =>
+      prev.map((notif) =>
+        notif._id === notificationId ? { ...notif, read: true } : notif
+      )
+    );
   };
 
   return (
