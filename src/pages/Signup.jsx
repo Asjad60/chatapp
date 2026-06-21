@@ -103,7 +103,7 @@ const Signup = () => {
               <picture>
                 <img
                   src={signupIllustration}
-                  alt="Chit Chat 3D Illustration"
+                  alt="Chatiz 3D Illustration"
                   className="max-w-full max-h-full object-contain rounded-2xl"
                 />
               </picture>
@@ -111,7 +111,7 @@ const Signup = () => {
 
             {/* Application Branding */}
             <h1 className="text-3xl lg:text-4xl font-[900] text-[#0047e1] tracking-tight mt-5">
-              Chit Chat
+              Chatiz
             </h1>
             <p className="text-slate-600 mt-2 max-w-xs text-[11px] leading-relaxed">
               Experience social connection at the speed of thought. Minimal friction, maximum expression.
@@ -129,7 +129,7 @@ const Signup = () => {
               Create an Account
             </h2>
             <p className="text-slate-500 mt-0.5 text-xs">
-              Sign up to get started with Chit Chat.
+              Sign up to get started with Chatiz.
             </p>
 
             <form

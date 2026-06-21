@@ -63,11 +63,9 @@ const Navbar = ({ isMobileHeader = false }) => {
     return (
       <div className="w-full flex items-center justify-between p-3.5 bg-white border-b border-slate-100 chat-shadow-sm font-comfortaa">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-extrabold text-lg shadow-sm">
-            C
-          </div>
+          <img src="/logo.png" alt="Chatiz Logo" className="w-8 h-8 object-contain drop-shadow-sm" />
           <span className="font-extrabold text-[#0047e1] text-sm">
-            Chit Chat
+            Chatiz
           </span>
         </div>
         <div className="flex items-center gap-3">
@@ -159,14 +157,12 @@ const Navbar = ({ isMobileHeader = false }) => {
     <div className="w-full h-full flex flex-col justify-between p-6 bg-[#f4f7fc] text-slate-700 font-comfortaa">
       {/* Top Section */}
       <div className="flex flex-col gap-6 w-full">
-        {/* Chit Chat Branding */}
+        {/* Chatiz Branding */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-extrabold text-2xl shadow-md shadow-blue-500/20">
-            C
-          </div>
+          <img src="/logo.png" alt="Chatiz Logo" className="w-10 h-10 object-contain drop-shadow-md" />
           <div className="flex flex-col">
             <span className="font-extrabold text-[#0047e1] text-[17px] leading-tight">
-              Chit Chat
+              Chatiz
             </span>
           </div>
         </div>

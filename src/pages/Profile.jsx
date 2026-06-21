@@ -205,7 +205,7 @@ const Profile = () => {
             />
 
             <h3 className="text-sm font-extrabold text-slate-800 mt-4 leading-normal text-center truncate w-full">
-              {username || "Chit Chat User"}
+              {username || "Chatiz User"}
             </h3>
 
             <div className="flex items-center gap-1.5 mt-1 bg-green-50/80 border border-green-100 rounded-full px-2.5 py-0.5">

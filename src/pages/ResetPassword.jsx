@@ -27,7 +27,7 @@ const ResetPassword = () => {
               C
             </div>
             <span className="font-extrabold text-[#0047e1] text-base tracking-tight">
-              Chit Chat
+              Chatiz
             </span>
           </div>
 

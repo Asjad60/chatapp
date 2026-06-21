@@ -18,7 +18,7 @@ export const sendResetPasswordToken = async (req, res) => {
 
     const token = crypto.randomBytes(20).toString("hex");
 
-    const url = `https://chitchat-chatapp.vercel.app/update-password/${token}`;
+    const url = `https://chatiz.vercel.app/update-password/${token}`;
 
     await mailSender(
       email,

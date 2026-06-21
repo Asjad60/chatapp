@@ -78,7 +78,7 @@ const Discovery = () => {
               Connect with Creative Minds globally in real-time
             </h2>
             <p className="text-xs text-blue-100 mt-2 leading-relaxed">
-              Chit Chat allow communities and seamless collaboration.
+              Chatiz allow communities and seamless collaboration.
             </p>
           </div>
           <div className="absolute top-[-30%] right-[-10%] w-[250px] h-[250px] bg-white/10 rounded-full blur-3xl"></div>

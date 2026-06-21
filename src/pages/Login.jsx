@@ -38,7 +38,7 @@ const Login = () => {
               <picture>
                 <img
                   src={signupIllustration}
-                  alt="Chit Chat 3D Illustration"
+                  alt="Chatiz 3D Illustration"
                   className="max-w-full max-h-full object-contain rounded-2xl"
                 />
               </picture>
@@ -46,7 +46,7 @@ const Login = () => {
 
             {/* Application Branding */}
             <h1 className="text-3xl lg:text-4xl font-[900] text-[#0047e1] tracking-tight mt-5">
-              Chit Chat
+              Chatiz
             </h1>
             <p className="text-slate-600 mt-2 max-w-xs text-[11px] leading-relaxed">
               Experience social connection at the speed of thought. Minimal
@@ -65,7 +65,7 @@ const Login = () => {
               Welcome Back
             </h2>
             <p className="text-slate-500 mt-0.5 text-xs">
-              Sign in to continue chatting on Chit Chat.
+              Sign in to continue chatting on Chatiz.
             </p>
 
             <form

@@ -12,7 +12,7 @@ const mailSender = (email, subject, body) => {
     });
 
     const info = transporter.sendMail({
-      from: ` "CHIT CHAT" <${process.env.MAIL_USER}>`,
+      from: ` "Chatiz" <${process.env.MAIL_USER}>`,
       to: `${email}`,
       subject: `${subject}`,
       html: `${body}`,

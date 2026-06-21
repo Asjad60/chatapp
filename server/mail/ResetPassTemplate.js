@@ -62,10 +62,10 @@ export const resetPassowrdTemplate = (email, url) => {
             <p>We received a request to reset your password. Click the button below to reset it:</p>
             <a href="${url}" class="button">Reset Password</a>
             <p>If you did not request a password reset, please ignore this email or contact support if you have questions.</p>
-            <p>Thanks,<br>The CHIT CHAT Team</p>
+            <p>Thanks,<br>The CHATIZ Team</p>
         </div>
         <div class="footer">
-            <p>&copy; 2024 CHIT CHAT. All rights reserved.</p>
+            <p>&copy; 2024 CHATIZ. All rights reserved.</p>
         </div>
     </div>
 </body>
