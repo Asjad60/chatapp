@@ -21,9 +21,13 @@ import Group from "../models/Group.js";
 import ApiError from "../utils/ApiError.js";
 
 export const initializeSocket = async (server, app) => {
+  const allowedOrigins = process.env.FRONTEND_URL
+    ? process.env.FRONTEND_URL.split(",").map((url) => url.trim())
+    : [];
+
   const io = new Server(server, {
     cors: {
-      origin: process.env.FRONTEND_URL,
+      origin: allowedOrigins,
       methods: ["GET", "POST", "PUT", "DELETE"],
       credentials: true,
     },
