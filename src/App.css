@@ -28,7 +28,7 @@
 }
 
 .btn {
-  @apply px-6 py-2  rounded-lg hover:scale-95 transition-all duration-200;
+  @apply px-6 py-2 rounded-lg hover:scale-95 transition-all duration-200;
 }
 
 ::-webkit-scrollbar {
@@ -41,14 +41,14 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #255487;
+  background-color: #013fc5;
   border-radius: 20px;
 }
 
 /* Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #255487 black;
+  scrollbar-color: #013fc5 rgb(223, 221, 221);
 }
 
 .animate {
@@ -71,6 +71,7 @@
   mask-composite: subtract;
   animation: l3 1s infinite linear;
 }
+
 @keyframes l3 {
   to {
     transform: rotate(1turn);
@@ -97,14 +98,17 @@
     box-shadow: 20px 0 #fff, -20px 0 #ffffff22;
     background: #fff;
   }
+
   33% {
     box-shadow: 20px 0 #fff, -20px 0 #ffffff22;
     background: #ffffff22;
   }
+
   66% {
     box-shadow: 20px 0 #ffffff22, -20px 0 #fff;
     background: #ffffff22;
   }
+
   100% {
     box-shadow: 20px 0 #ffffff22, -20px 0 #fff;
     background: #fff;
@@ -184,17 +188,19 @@
     box-shadow: 10px 0 #0047e1, -10px 0 rgba(0, 71, 225, 0.15);
     background: #0047e1;
   }
+
   33% {
     box-shadow: 10px 0 #0047e1, -10px 0 rgba(0, 71, 225, 0.15);
     background: rgba(0, 71, 225, 0.15);
   }
+
   66% {
     box-shadow: 10px 0 rgba(0, 71, 225, 0.15), -10px 0 #0047e1;
     background: rgba(0, 71, 225, 0.15);
   }
+
   100% {
     box-shadow: 10px 0 rgba(0, 71, 225, 0.15), -10px 0 #0047e1;
     background: #0047e1;
   }
 }
-
