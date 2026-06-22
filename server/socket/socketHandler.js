@@ -68,18 +68,19 @@ export const initializeSocket = async (server, app) => {
     // even if the broadcast and the client listener registration race.
     socket.emit(USER_STATUS, Array.from(onlineUsers));
 
-    socket.on(NEW_MESSAGE, async ({ sender, receiver, content }) => {
+    socket.on(NEW_MESSAGE, async ({ sender, receiver, content, replyTo }) => {
       try {
         // console.log("data ==> ", sender, receiver, content);
         io.to(userSocketIDs.get(receiver)).emit(NEW_MESSAGE, {
           sender,
           receiver,
           content,
+          replyTo,
         });
         io.to(userSocketIDs.get(receiver)).emit(NEW_MESSAGE_ALERT, {
           sender,
         });
-        const message = await Message({ sender, receiver, content });
+        const message = await Message({ sender, receiver, content, replyTo: replyTo?._id || null, });
         await message.save();
       } catch (error) {
         console.error("Error handling new message event:", error);
@@ -138,8 +139,7 @@ export const initializeSocket = async (server, app) => {
     });
 
     socket.on(GROUP_MESSAGE, async (data) => {
-      const { groupId, message } = data;
-      console.log("GROUP_MESSAGE: ", groupId, message);
+      const { groupId, message, replyTo } = data;
 
       try {
         const group = await Group.findById(groupId);
@@ -152,15 +152,15 @@ export const initializeSocket = async (server, app) => {
           sender: userId,
           group: groupId,
           content: message,
+          replyTo: replyTo?._id || null,
           isDelivered: true,
         });
 
         const populatedMessage = await Message.findById(
           newMessage._id
-        ).populate("sender", "username image");
+        ).populate("sender", "username image").populate("replyTo").lean();
 
         if (group.members.some((member) => member.equals(userId))) {
-          console.log("inside the if of group message");
           io.to(groupId).emit(NEW_MESSAGE, populatedMessage);
 
           group.messages.push(newMessage._id);

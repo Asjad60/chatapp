@@ -40,6 +40,11 @@ const messageSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Group",
     },
+    replyTo: {
+      type: Schema.Types.ObjectId,
+      ref: "Message",
+      default: null,
+    }
   },
   { timestamps: true }
 );

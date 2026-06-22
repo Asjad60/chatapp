@@ -141,9 +141,12 @@ export const getGroupMessages = asyncHandler(async (req, res) => {
 
   const groupMessages = await Message.find({ group: groupId })
     .sort({ createdAt: -1 })
-    .populate("sender receiver", "username image")
+    .populate("sender", "username image")
+    .populate("receiver", "username image")
+    .populate("replyTo")
     .skip(skip)
-    .limit(limit);
+    .limit(limit)
+    .lean()
 
   if (groupMessages.length === 0) {
     throw new ApiError("No messages found", 404);

@@ -13,7 +13,7 @@ export const getAllChats = async (req, res) => {
     const page = Number(_page) || 1;
     const skip = (page - 1) * limit;
 
-    const findReceiver = await User.findById(receiverId);
+    const findReceiver = await User.findById(receiverId).lean();
     if (!findReceiver) {
       return res.status(400).json({
         success: false,
@@ -26,7 +26,7 @@ export const getAllChats = async (req, res) => {
         { sender: userId, receiver: receiverId },
         { sender: receiverId, receiver: userId },
       ],
-    }).skip(skip).limit(limit).sort({ createdAt: -1 }).lean();
+    }).populate("replyTo").skip(skip).limit(limit).sort({ createdAt: -1 }).lean();
 
     const totalMessages = await Message.countDocuments({
       $or: [

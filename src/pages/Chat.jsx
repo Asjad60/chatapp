@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { getContextData } from "../context/AuthProvider";
 import { IoIosSend } from "react-icons/io";
-import { IoHappyOutline } from "react-icons/io5";
+import { IoHappyOutline, IoClose } from "react-icons/io5";
 import ChatList from "../components/core/Chat/ChatList";
 import { getAllChats, sendAttachments } from "../services/operations/chatAPI";
 import Button from "../components/Button";
@@ -33,6 +33,7 @@ const Chat = () => {
   const [page, setPage] = useState(1);
   const [isListening, setIsListening] = useState(false);
   const [isEmojiOpen, setIsEmojiOpen] = useState(false);
+  const [replyTo, setReplyTo] = useState(null);
 
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
@@ -58,7 +59,7 @@ const Chat = () => {
     const handleClickOutside = (event) => {
       // Check if click was outside picker and outside the trigger button
       if (
-        emojiPickerRef.current && 
+        emojiPickerRef.current &&
         !emojiPickerRef.current.contains(event.target) &&
         !event.target.closest(".emoji-trigger-btn")
       ) {
@@ -103,14 +104,17 @@ const Chat = () => {
           sender: user._id,
           receiver: id,
           content: content.trim(),
+          replyTo: replyTo || null,
         };
         socket.emit("new_message", newMessage);
         setMessages((prevMessages) => [...prevMessages, newMessage]);
         setContent("");
+        setReplyTo(null);
         setLastChatWith(id);
       } else {
-        socket.emit("group_message", { groupId: id, message: content });
+        socket.emit("group_message", { groupId: id, message: content, replyTo: replyTo || null });
         setContent("");
+        setReplyTo(null);
         setLastChatWith(id);
       }
       inputRef.current.focus();
@@ -381,7 +385,7 @@ const Chat = () => {
       const recorder = new window.MediaRecorder(stream, options);
       mediaRecorderRef.current = recorder;
       isCancelRef.current = false;
-      
+
       const chunks = [];
       recorder.ondataavailable = (e) => {
         if (e.data && e.data.size > 0) {
@@ -398,7 +402,7 @@ const Chat = () => {
           const blob = new Blob(chunks, { type: actualMimeType });
           const extension = actualMimeType.split("/")[1]?.split(";")[0] || "webm";
           const file = new File([blob], `voice_message.${extension}`, { type: actualMimeType });
-          
+
           if (audioPreviewUrl) {
             URL.revokeObjectURL(audioPreviewUrl);
           }
@@ -411,7 +415,7 @@ const Chat = () => {
 
       recorder.start();
       setIsRecording(true);
-      
+
       setRecordingTime(0);
       recordingIntervalRef.current = setInterval(() => {
         setRecordingTime((prev) => prev + 1);
@@ -514,12 +518,12 @@ const Chat = () => {
 
       {/* Messages Panel Container */}
       <div
-        className="flex-grow overflow-y-auto py-6 light-scrollbar relative z-10"
+        className="flex-grow overflow-y-auto light-scrollbar relative z-10"
         ref={chatContainer}
       >
         {!loading ? (
           <>
-            <ChatList messages={messages} userId={user._id} />
+            <ChatList messages={messages} userId={user._id} onReply={(msg) => setReplyTo(msg)} inputRef={inputRef} />
 
             {/* Dynamic typing indicator card */}
             {typingUsers.length > 0 && (
@@ -568,7 +572,7 @@ const Chat = () => {
                 {formatRecordingTime(recordingTime)}
               </span>
             </div>
-            
+
             <div className="flex items-center gap-2.5">
               {/* Cancel Button */}
               <button
@@ -596,7 +600,7 @@ const Chat = () => {
             <div className="flex-grow flex items-center gap-3 min-w-0">
               <AudioPlayer url={audioPreviewUrl} />
             </div>
-            
+
             <div className="flex items-center gap-2.5 shrink-0">
               {/* Discard Preview Button */}
               <button
@@ -620,78 +624,102 @@ const Chat = () => {
             </div>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="flex-1 flex gap-3">
+          <form onSubmit={handleSubmit} className="flex-1 flex items-end gap-3">
             {/* Main message input pill */}
-            <div className="flex-grow relative flex items-center bg-white rounded-2xl px-4 py-2 border border-slate-100 chat-shadow-md">
-              <input
-                type="text"
-                name="content"
-                className="w-full bg-transparent outline-none border-none py-1.5 text-slate-800 text-sm font-semibold placeholder:text-slate-400"
-                onChange={(e) => {
-                  setContent(e.target.value);
-                  handleTypeMessage();
-                }}
-                placeholder={
-                  isListening ? "Listening... Speak now..." : "Type a message..."
-                }
-                value={content}
-                autoComplete="off"
-                ref={inputRef}
-              />
+            <div className="flex-grow relative flex flex-col bg-white rounded-2xl border border-slate-100 chat-shadow-md">
 
-              {/* Speech to text button */}
-              <button
-                type="button"
-                onClick={handleSpeechToText}
-                className={`p-1 rounded-xl transition-all duration-150 cursor-pointer shrink-0 ${
-                  isListening
-                    ? "text-red-500 bg-red-50 ring-2 ring-red-500/20 animate-pulse"
-                    : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
-                }`}
-                title={isListening ? "Stop Listening" : "Voice Input"}
-              >
-                <RiVoiceRecognitionFill size={20} />
-              </button>
-
-              {/* Voice recording trigger button */}
-              <button
-                type="button"
-                onClick={startRecording}
-                className="p-1 text-slate-400 hover:text-[#0047e1] transition-colors duration-150 cursor-pointer shrink-0"
-                title="Record Voice Note"
-              >
-                <FaMicrophone size={18} />
-              </button>
-
-              {/* Emoji Trigger */}
-              <button
-                type="button"
-                onClick={() => setIsEmojiOpen((prev) => !prev)}
-                className="emoji-trigger-btn p-1 text-slate-400 hover:text-slate-600 transition-colors duration-150 cursor-pointer shrink-0"
-                title="Add Emoji"
-              >
-                <IoHappyOutline size={20} />
-              </button>
-
-              {/* Float EmojiPicker absolutely above input pill on right side */}
-              {isEmojiOpen && (
-                <div 
-                  ref={emojiPickerRef} 
-                  className="absolute bottom-[calc(100%+12px)] right-3 z-50 shadow-2xl rounded-2xl overflow-hidden border border-slate-100/80 animate-fade-in"
-                >
-                  <EmojiPicker
-                    onEmojiClick={(emojiObject) =>
-                      setContent((prev) => prev + emojiObject.emoji)
-                    }
-                    emojiStyle="native"
-                    open={isEmojiOpen}
-                    // previewConfig={{ showPreview: false }}
-                    lazyLoadEmojis={true}
-                    theme="light"
-                  />
+              {/* Reply Quote UI */}
+              {replyTo && (
+                <div className="flex items-start justify-between bg-slate-50 border-l-4 border-[#0047e1] p-2 mx-2 mt-2 rounded-lg relative">
+                  <div className="flex flex-col overflow-hidden min-w-0 pr-2">
+                    <span className="text-[11px] font-bold text-[#0047e1] truncate capitalize">
+                      {replyTo.sender?.username || "Reply to message"}
+                    </span>
+                    <span className="text-xs text-slate-500 truncate">
+                      {replyTo.content || (replyTo.attachments?.length > 0 ? "Attachment" : "Message")}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setReplyTo(null)}
+                    className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition-colors shrink-0"
+                    title="Cancel reply"
+                  >
+                    <IoClose size={16} />
+                  </button>
                 </div>
               )}
 
+              <div className="flex items-center px-4 py-2 w-full">
+                <input
+                  type="text"
+                  name="content"
+                  className="w-full bg-transparent outline-none border-none py-1.5 text-slate-800 text-sm font-semibold placeholder:text-slate-400"
+                  onChange={(e) => {
+                    setContent(e.target.value);
+                    handleTypeMessage();
+                  }}
+                  placeholder={
+                    isListening ? "Listening... Speak now..." : "Type a message..."
+                  }
+                  value={content}
+                  autoComplete="off"
+                  ref={inputRef}
+                />
+
+                {/* Speech to text button */}
+                <button
+                  type="button"
+                  onClick={handleSpeechToText}
+                  className={`p-1 rounded-xl transition-all duration-150 cursor-pointer shrink-0 ${isListening
+                    ? "text-red-500 bg-red-50 ring-2 ring-red-500/20 animate-pulse"
+                    : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
+                    }`}
+                  title={isListening ? "Stop Listening" : "Voice Input"}
+                >
+                  <RiVoiceRecognitionFill size={20} />
+                </button>
+
+                {/* Voice recording trigger button */}
+                <button
+                  type="button"
+                  onClick={startRecording}
+                  className="p-1 text-slate-400 hover:text-[#0047e1] transition-colors duration-150 cursor-pointer shrink-0"
+                  title="Record Voice Note"
+                >
+                  <FaMicrophone size={18} />
+                </button>
+
+                {/* Emoji Trigger */}
+                <button
+                  type="button"
+                  onClick={() => setIsEmojiOpen((prev) => !prev)}
+                  className="emoji-trigger-btn p-1 text-slate-400 hover:text-slate-600 transition-colors duration-150 cursor-pointer shrink-0"
+                  title="Add Emoji"
+                >
+                  <IoHappyOutline size={20} />
+                </button>
+
+                {/* Float EmojiPicker absolutely above input pill on right side */}
+                {isEmojiOpen && (
+                  <div
+                    ref={emojiPickerRef}
+                    className="absolute bottom-[calc(100%+12px)] right-3 z-50 shadow-2xl rounded-2xl overflow-hidden border border-slate-100/80 animate-fade-in"
+                  >
+                    <EmojiPicker
+                      onEmojiClick={(emojiObject) =>
+                        setContent((prev) => prev + emojiObject.emoji)
+                      }
+                      emojiStyle="native"
+                      open={isEmojiOpen}
+                      // previewConfig={{ showPreview: false }}
+                      lazyLoadEmojis={true}
+                      theme="light"
+                    />
+                  </div>
+                )}
+
+              </div>
             </div>
 
             {/* Paperplane Circular Send Trigger */}

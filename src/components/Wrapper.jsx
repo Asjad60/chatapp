@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import UsersSidebar from "./friendsOrGroups/UsersSidebar";
 import { Outlet, useLocation, useParams } from "react-router-dom";
 import { getSocket } from "../context/SocketProvider";
@@ -14,6 +14,20 @@ const Wrapper = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const { setNotifications } = getContextData();
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
 
   const fetchNotifications = async () => {
     const result = await getNotifications();
@@ -71,6 +85,11 @@ const Wrapper = () => {
   return (
     <div className="w-full flex flex-col items-center justify-center bg-[#f4f7fc] min-h-[100dvh]">
       <div className="relative w-full h-[100dvh] flex z-10 bg-[#f4f7fc] overflow-hidden">
+        {!isOnline && (
+          <div className="absolute top-0 left-0 w-full bg-red-500 text-white text-center py-1.5 z-[99] text-xs font-semibold shadow-md">
+            No internet connection
+          </div>
+        )}
         {/* Column 1: Leftmost Navigation Sidebar (Navbar) */}
         <div className="hidden md:flex w-[240px] h-full bg-[#f4f7fc] border-r border-slate-200/80 shrink-0">
           <Navbar />
@@ -85,9 +104,8 @@ const Wrapper = () => {
           Desktop: always show (md:flex)
         */}
         <div
-          className={`${
-            location.pathname !== "/" ? "hidden md:flex" : "flex"
-          } w-full md:w-[320px] h-full bg-[#f8f9fb] border-r border-slate-200/60 flex-col shrink-0 overflow-hidden relative`}
+          className={`${location.pathname !== "/" ? "hidden md:flex" : "flex"
+            } w-full md:w-[320px] h-full bg-[#f8f9fb] border-r border-slate-200/60 flex-col shrink-0 overflow-hidden relative`}
         >
           {/* Mobile Navigation Header */}
           <div className="md:hidden block w-full bg-[#f4f7fc] border-b border-slate-100">
@@ -104,9 +122,8 @@ const Wrapper = () => {
           Desktop: always show
         */}
         <div
-          className={`${
-            location.pathname !== "/" ? "flex" : "hidden md:flex"
-          } flex-1 h-full relative overflow-hidden bg-[#f4f7fc]`}
+          className={`${location.pathname !== "/" ? "flex" : "hidden md:flex"
+            } flex-1 h-full relative overflow-hidden bg-[#f4f7fc]`}
         >
           <Outlet />
         </div>
