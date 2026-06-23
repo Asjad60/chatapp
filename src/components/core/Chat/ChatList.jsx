@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { IoCheckmarkDoneSharp } from "react-icons/io5";
 import { Link, useSearchParams } from "react-router-dom";
 import AudioPlayer from "./AudioPlayer";
@@ -18,7 +18,8 @@ const MessageItem = ({
   highlightedMsgId,
   setHighlightedMsgId,
   onReply,
-  inputRef
+  inputRef,
+  messagesRef,
 }) => {
   const msgKey = msg._id || `${i}_${msg.content}`;
 
@@ -30,6 +31,24 @@ const MessageItem = ({
     threshold: 70,
     maxSwipeX: 100
   })
+
+  const scrollToMessage = (targetId) => {
+    const map = messagesRef.current;
+    const node = map.get(targetId);
+    console.log("calling")
+    if (node) {
+      node.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+
+      // Trigger the flash animation state
+      setHighlightedMsgId(targetId);
+      setTimeout(() => {
+        setHighlightedMsgId(null);
+      }, 1500);
+    }
+  };
 
   const isHighlighted = highlightedMsgId === msgKey;
 
@@ -50,6 +69,14 @@ const MessageItem = ({
         style={{
           ...style,
           touchAction: 'pan-y'
+        }}
+        ref={(el) =>{
+          const map = messagesRef.current
+          if(el){
+            map.set(msgKey, el)
+          }else{
+            map.delete(msgKey)
+          }
         }}
         className={`flex w-full relative px-4 py-2 ${isHighlighted ? "bg-blue-900/10 rounded-xl " : ""
           } ${isSentByCurrentUser ? "justify-end" : "justify-start"} ${isDragging ? "cursor-grab active:cursor-grabbing transition-none" : "cursor-auto transition-all duration-300"}`}
@@ -89,7 +116,12 @@ const MessageItem = ({
                 }`}
             >
               {msg.replyTo && (
-                <div className={`p-2 rounded-lg text-[10px] border-l-4 ${isSentByCurrentUser ? "bg-white/10 border-blue-200" : "bg-black/5 border-blue-500"}`}>
+                <div
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    scrollToMessage(msg.replyTo._id)
+                  }}
+                  className={`cursor-pointer p-2 rounded-lg text-[10px] border-l-4 ${isSentByCurrentUser ? "bg-white/10 border-blue-200" : "bg-black/5 border-blue-500"}`}>
                   <p className="line-clamp-2 opacity-90 break-words">{msg.replyTo.content || "Attachment"}</p>
                 </div>
               )}
@@ -154,27 +186,6 @@ const MessageItem = ({
             )}
           </div>
         </div>
-
-        {/* Dropdown Menu */}
-        {isHighlighted && (
-          <div
-            className={`absolute top-full mt-1 ${isSentByCurrentUser ? "right-2" : "left-2"
-              } bg-white shadow-md border border-gray-100 rounded-lg p-1 z-50 min-w-[120px] text-sm`}
-          >
-            <button
-              className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 w-full text-left rounded-md font-medium transition-colors"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (onReply) {
-                  onReply(msg);
-                }
-                setHighlightedMsgId(null);
-              }}
-            >
-              Reply
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
@@ -186,6 +197,7 @@ const ChatList = ({ messages, userId, onReply, inputRef }) => {
   const isGroupName = searchParams.has("groupname");
   const partnerUsername = searchParams.get("username");
   const partnerImageUrl = searchParams.get("imageUrl");
+  const messagesRef = useRef(new Map())
 
   const formatTime = (dateStr) => {
     // Real-time socket messages arrive without createdAt — fall back to
@@ -271,6 +283,7 @@ const ChatList = ({ messages, userId, onReply, inputRef }) => {
             setHighlightedMsgId={setHighlightedMsgId}
             onReply={onReply}
             inputRef={inputRef}
+            messagesRef={messagesRef}
           />
         );
       })}
