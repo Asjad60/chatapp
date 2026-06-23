@@ -23,9 +23,7 @@ const ResetPassword = () => {
 
           {/* Branding */}
           <div className="flex items-center gap-2.5 mb-8">
-            <div className="w-9 h-9 rounded-xl bg-[#0047e1] flex items-center justify-center text-white font-extrabold text-lg shadow-md shadow-blue-500/20">
-              C
-            </div>
+            <img src="/logo.png" alt="Chatiz Logo" className="w-10 h-10 rounded-2xl object-contain drop-shadow-sm" />
             <span className="font-extrabold text-[#0047e1] text-base tracking-tight">
               Chatiz
             </span>

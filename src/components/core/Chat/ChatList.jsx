@@ -27,8 +27,8 @@ const MessageItem = ({
       onReply(msg);
       inputRef.current.focus();
     },
-    threshold: 100,
-    maxSwipeX: 200
+    threshold: 70,
+    maxSwipeX: 100
   })
 
   const isHighlighted = highlightedMsgId === msgKey;
@@ -47,7 +47,10 @@ const MessageItem = ({
       {/* Message Row */}
       <div
         {...bind}
-        style={style}
+        style={{
+          ...style,
+          touchAction: 'pan-y'
+        }}
         className={`flex w-full relative px-4 py-2 ${isHighlighted ? "bg-blue-900/10 rounded-xl " : ""
           } ${isSentByCurrentUser ? "justify-end" : "justify-start"} ${isDragging ? "cursor-grab active:cursor-grabbing transition-none" : "cursor-auto transition-all duration-300"}`}
       >

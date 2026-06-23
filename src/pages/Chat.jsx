@@ -555,7 +555,7 @@ const Chat = () => {
       </div>
 
       {/* Footer Text Bar */}
-      <div className="p-4 bg-transparent w-full flex items-center gap-3 shrink-0 z-10">
+      <div className="p-4 bg-transparent w-full flex items-end gap-3 shrink-0 z-10">
         {!isRecording && !isPreviewing && (
           /* Attachment upload selector */
           <SendAttchments setLastChatWith={setLastChatWith} id={id} />
