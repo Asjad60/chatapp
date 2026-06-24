@@ -20,6 +20,7 @@ const MessageItem = ({
   onReply,
   inputRef,
   messagesRef,
+  msgHighlightTimeoutRef
 }) => {
   const msgKey = msg._id || `${i}_${msg.content}`;
 
@@ -35,7 +36,7 @@ const MessageItem = ({
   const scrollToMessage = (targetId) => {
     const map = messagesRef.current;
     const node = map.get(targetId);
-    console.log("calling")
+
     if (node) {
       node.scrollIntoView({
         behavior: 'smooth',
@@ -44,7 +45,10 @@ const MessageItem = ({
 
       // Trigger the flash animation state
       setHighlightedMsgId(targetId);
-      setTimeout(() => {
+      if(msgHighlightTimeoutRef.current){
+        clearTimeout(msgHighlightTimeoutRef.current)
+      }
+     msgHighlightTimeoutRef.current = setTimeout(() => {
         setHighlightedMsgId(null);
       }, 1500);
     }
@@ -198,6 +202,8 @@ const ChatList = ({ messages, userId, onReply, inputRef }) => {
   const partnerUsername = searchParams.get("username");
   const partnerImageUrl = searchParams.get("imageUrl");
   const messagesRef = useRef(new Map())
+  const msgHighlightTimeoutRef = useRef(null);
+
 
   const formatTime = (dateStr) => {
     // Real-time socket messages arrive without createdAt — fall back to
@@ -284,6 +290,7 @@ const ChatList = ({ messages, userId, onReply, inputRef }) => {
             onReply={onReply}
             inputRef={inputRef}
             messagesRef={messagesRef}
+            msgHighlightTimeoutRef={msgHighlightTimeoutRef}
           />
         );
       })}
