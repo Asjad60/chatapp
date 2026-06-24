@@ -8,15 +8,25 @@ import UpdatePassword from "./pages/UpdatePassword";
 import Error from "./pages/Error";
 import { getContextData } from "./context/AuthProvider";
 import { getMyProfile } from "./services/operations/userAPI";
+import { RiLoader3Line } from "react-icons/ri";
 
-const Home = lazy(() => import("./pages/Home"));
-const Login = lazy(() => import("./pages/Login"));
-const Signup = lazy(() => import("./pages/Signup"));
-const Chat = lazy(() => import("./pages/Chat"));
-const Notification = lazy(() => import("./pages/Notification"));
-const Wrapper = lazy(() => import("./components/Wrapper"));
-const Discovery = lazy(() => import("./pages/Discovery"));
-const Profile = lazy(() => import("./pages/Profile"));
+// const Home = lazy(() => import("./pages/Home"));
+// const Login = lazy(() => import("./pages/Login"));
+// const Signup = lazy(() => import("./pages/Signup"));
+// const Chat = lazy(() => import("./pages/Chat"));
+// const Notification = lazy(() => import("./pages/Notification"));
+// const Wrapper = lazy(() => import("./components/Wrapper"));
+// const Discovery = lazy(() => import("./pages/Discovery"));
+// const Profile = lazy(() => import("./pages/Profile"));
+
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import Home from "./pages/Home";
+import Chat from "./pages/Chat";
+import Notification from "./pages/Notification";
+import Wrapper from "./components/Wrapper";
+import Discovery from "./pages/Discovery";
+import Profile from "./pages/Profile";
 
 function App() {
   const navigate = useNavigate();
@@ -31,13 +41,13 @@ function App() {
   return (
     <main className="App flex flex-col h-[100dvh] font-comfortaa">
       <div className="z-10">
-        <Suspense
+        {/* <Suspense
           fallback={
             <div className="min-h-screen grid place-items-center">
-              <div className="loader"></div>
+              <RiLoader3Line className="animate-spin text-5xl text-[#02339c]" />
             </div>
           }
-        >
+        > */}
           <Routes>
             <Route
               path="/login"
@@ -89,7 +99,7 @@ function App() {
 
             <Route path="*" element={<Error />} />
           </Routes>
-        </Suspense>
+        {/* </Suspense> */}
       </div>
     </main>
   );

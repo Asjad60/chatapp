@@ -8,6 +8,7 @@ import FriendsLink from "./FriendsLink";
 import { getMyGroups } from "../../services/operations/groupAPI";
 import { IoSearchOutline, IoChatbubbleEllipses } from "react-icons/io5";
 import { GrGroup } from "react-icons/gr";
+import { RiLoader3Line } from "react-icons/ri";
 
 const UsersSidebar = () => {
   const [friends, setFriends] = useState([]);
@@ -162,7 +163,7 @@ const UsersSidebar = () => {
 
       {loading ? (
         <div className="w-full flex-grow flex justify-center items-center">
-          <div className="loader !border-[#0047e1]"></div>
+          <RiLoader3Line className="animate-spin text-5xl text-[#02339c]" />
         </div>
       ) : (
         <div className="w-full flex-grow overflow-y-auto p-4 flex flex-col gap-5 light-scrollbar">

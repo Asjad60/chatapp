@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { IoCheckmarkDoneSharp } from "react-icons/io5";
 import { Link, useSearchParams } from "react-router-dom";
 import AudioPlayer from "./AudioPlayer";
@@ -16,11 +16,10 @@ const MessageItem = ({
   isGroupName,
   formatTime,
   highlightedMsgId,
-  setHighlightedMsgId,
   onReply,
   inputRef,
   messagesRef,
-  msgHighlightTimeoutRef
+  scrollToMessage
 }) => {
   const msgKey = msg._id || `${i}_${msg.content}`;
 
@@ -32,27 +31,6 @@ const MessageItem = ({
     threshold: 70,
     maxSwipeX: 100
   })
-
-  const scrollToMessage = (targetId) => {
-    const map = messagesRef.current;
-    const node = map.get(targetId);
-
-    if (node) {
-      node.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-      });
-
-      // Trigger the flash animation state
-      setHighlightedMsgId(targetId);
-      if(msgHighlightTimeoutRef.current){
-        clearTimeout(msgHighlightTimeoutRef.current)
-      }
-     msgHighlightTimeoutRef.current = setTimeout(() => {
-        setHighlightedMsgId(null);
-      }, 1500);
-    }
-  };
 
   const isHighlighted = highlightedMsgId === msgKey;
 
@@ -195,7 +173,16 @@ const MessageItem = ({
   );
 };
 
-const ChatList = ({ messages, userId, onReply, inputRef }) => {
+const ChatList = ({
+  messages,
+  userId,
+  onReply,
+  inputRef,
+  hasNextPage,
+  onLoadMore,
+  loading,
+  loadingMore
+}) => {
   const [searchParams] = useSearchParams();
   const [highlightedMsgId, setHighlightedMsgId] = useState(null);
   const isGroupName = searchParams.has("groupname");
@@ -203,6 +190,68 @@ const ChatList = ({ messages, userId, onReply, inputRef }) => {
   const partnerImageUrl = searchParams.get("imageUrl");
   const messagesRef = useRef(new Map())
   const msgHighlightTimeoutRef = useRef(null);
+  const pendingScrollTargetIdRef = useRef(null);
+
+  const scrollToMessage = (targetId) => {
+    const map = messagesRef.current;
+    const node = map.get(targetId);
+
+    if (node) {
+      node.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+
+      setHighlightedMsgId(targetId);
+      if (msgHighlightTimeoutRef.current) {
+        clearTimeout(msgHighlightTimeoutRef.current);
+      }
+      msgHighlightTimeoutRef.current = setTimeout(() => {
+        setHighlightedMsgId(null);
+      }, 1500);
+    } else {
+      pendingScrollTargetIdRef.current = targetId;
+      if (hasNextPage && onLoadMore) {
+        onLoadMore();
+      } else {
+        pendingScrollTargetIdRef.current = null;
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (pendingScrollTargetIdRef.current && !loading && !loadingMore) {
+      const targetId = pendingScrollTargetIdRef.current;
+      const map = messagesRef.current;
+      const node = map.get(targetId);
+
+      if (node) {
+        setTimeout(() => {
+          const latestNode = map.get(targetId);
+          if (latestNode) {
+            latestNode.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center',
+            });
+
+            setHighlightedMsgId(targetId);
+            if (msgHighlightTimeoutRef.current) {
+              clearTimeout(msgHighlightTimeoutRef.current);
+            }
+            msgHighlightTimeoutRef.current = setTimeout(() => {
+              setHighlightedMsgId(null);
+            }, 1500);
+          }
+        }, 100);
+
+        pendingScrollTargetIdRef.current = null;
+      } else if (hasNextPage && onLoadMore) {
+        onLoadMore();
+      } else {
+        pendingScrollTargetIdRef.current = null;
+      }
+    }
+  }, [messages, hasNextPage, onLoadMore, loading, loadingMore]);
 
 
   const formatTime = (dateStr) => {
@@ -286,11 +335,10 @@ const ChatList = ({ messages, userId, onReply, inputRef }) => {
             isGroupName={isGroupName}
             formatTime={formatTime}
             highlightedMsgId={highlightedMsgId}
-            setHighlightedMsgId={setHighlightedMsgId}
             onReply={onReply}
             inputRef={inputRef}
             messagesRef={messagesRef}
-            msgHighlightTimeoutRef={msgHighlightTimeoutRef}
+            scrollToMessage={scrollToMessage}
           />
         );
       })}

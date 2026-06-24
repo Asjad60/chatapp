@@ -18,10 +18,12 @@ import { RiVoiceRecognitionFill } from "react-icons/ri";
 import { FaMicrophone, FaTrash, FaCheck } from "react-icons/fa";
 import EmojiPicker from "emoji-picker-react"
 import AudioPlayer from "../components/core/Chat/AudioPlayer";
+import { RiLoader3Line } from "react-icons/ri";
 
 const Chat = () => {
   const { user, setLastChatWith } = getContextData();
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const socket = getSocket();
   const { id } = useParams();
   const dispatch = useDispatch();
@@ -54,6 +56,7 @@ const Chat = () => {
   const streamRef = useRef(null);
   const recordingIntervalRef = useRef(null);
   const isCancelRef = useRef(false);
+  const isFetchingRef = useRef(false);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -167,42 +170,65 @@ const Chat = () => {
     [id]
   );
 
+  const onLoadMore = useCallback(() => {
+    if (!loading && !loadingMore && !isFetchingRef.current) {
+      setPage((prev) => prev + 1);
+    }
+  }, [loading, loadingMore]);
+
   const fetchChats = async (pageNumber = 1) => {
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
+
     const container = chatContainer.current;
     const prevScrollHeight = container?.scrollHeight;
 
-    if (!isGroupName) {
-      const result = await getAllChats(id, pageNumber, 30);
-      if (result) {
-        if (pageNumber === 1) {
-          setMessages(result.messages || []);
-        } else {
-          setMessages((prev) => {
-            const existingIds = new Set((prev || []).map((msg) => msg?._id));
-            const newMessages = (result?.messages || []).filter(
-              (msg) => msg && !existingIds.has(msg._id)
-            );
-            return [...newMessages, ...(prev || [])];
-          });
-        }
-        setPaginationData(result.pagination || { hasNextPage: false });
-      }
+    if (pageNumber === 1) {
+      setLoading(true);
     } else {
-      const result = await fetchGroupMessages(id, pageNumber, 30);
-      if (result) {
-        if (pageNumber === 1) {
-          setMessages(result.messages || []);
-        } else {
-          setMessages((prev) => {
-            const existingIds = new Set((prev || []).map((msg) => msg?._id));
-            const newMessages = result?.messages?.filter(
-              (msg) => msg && !existingIds.has(msg._id)
-            ) || [];
-            return [...newMessages, ...(prev || [])];
-          });
+      setLoadingMore(true);
+    }
+
+    try {
+      if (!isGroupName) {
+        const result = await getAllChats(id, pageNumber, 30);
+        if (result) {
+          if (pageNumber === 1) {
+            setMessages(result.messages || []);
+          } else {
+            setMessages((prev) => {
+              const existingIds = new Set((prev || []).map((msg) => msg?._id));
+              const newMessages = (result?.messages || []).filter(
+                (msg) => msg && !existingIds.has(msg._id)
+              );
+              return [...newMessages, ...(prev || [])];
+            });
+          }
+          setPaginationData(result.pagination || { hasNextPage: false });
         }
-        setPaginationData(result.pagination || { hasNextPage: false });
+      } else {
+        const result = await fetchGroupMessages(id, pageNumber, 30);
+        if (result) {
+          if (pageNumber === 1) {
+            setMessages(result.messages || []);
+          } else {
+            setMessages((prev) => {
+              const existingIds = new Set((prev || []).map((msg) => msg?._id));
+              const newMessages = result?.messages?.filter(
+                (msg) => msg && !existingIds.has(msg._id)
+              ) || [];
+              return [...newMessages, ...(prev || [])];
+            });
+          }
+          setPaginationData(result.pagination || { hasNextPage: false });
+        }
       }
+    } catch (error) {
+      console.error("Error fetching chats:", error);
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+      isFetchingRef.current = false;
     }
 
     setTimeout(() => {
@@ -295,7 +321,7 @@ const Chat = () => {
 
     const ChatContainerScroll = () => {
       if (paginationData.hasNextPage && container.scrollTop === 0) {
-        setPage((prev) => prev + 1);
+        onLoadMore();
       }
     };
 
@@ -304,7 +330,7 @@ const Chat = () => {
     return () => {
       container.removeEventListener("scroll", ChatContainerScroll);
     };
-  }, [paginationData.hasNextPage]);
+  }, [paginationData.hasNextPage, onLoadMore]);
 
   const handleSpeechToText = useCallback(() => {
     if (isListening) {
@@ -523,7 +549,21 @@ const Chat = () => {
       >
         {!loading ? (
           <>
-            <ChatList messages={messages} userId={user._id} onReply={(msg) => setReplyTo(msg)} inputRef={inputRef} />
+            {loadingMore && (
+              <div className="w-full flex justify-center py-3">
+                <RiLoader3Line className="animate-spin text-3xl text-[#02339c]" />
+              </div>
+            )}
+            <ChatList
+              messages={messages}
+              userId={user._id}
+              onReply={(msg) => setReplyTo(msg)}
+              inputRef={inputRef}
+              hasNextPage={paginationData.hasNextPage}
+              onLoadMore={onLoadMore}
+              loading={loading}
+              loadingMore={loadingMore}
+            />
 
             {/* Dynamic typing indicator card */}
             {typingUsers.length > 0 && (
@@ -548,7 +588,7 @@ const Chat = () => {
           </>
         ) : (
           <div className="w-full h-full flex justify-center items-center">
-            <div className="loader !border-[#0047e1]"></div>
+            <RiLoader3Line className="animate-spin text-5xl text-[#02339c]" />
           </div>
         )}
         <div ref={ref} />
