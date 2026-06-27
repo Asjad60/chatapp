@@ -54,7 +54,6 @@ const Navbar = ({ isMobileHeader = false }) => {
   const isActiveGroup =
     (location.pathname === "/" || location.pathname.startsWith("/chat/")) &&
     isGroupChat;
-  const isActiveDiscovery = location.pathname === "/discovery";
   const isActiveNotification = location.pathname === "/notification";
   const isActiveProfile = location.pathname === "/profile";
 
@@ -201,19 +200,6 @@ const Navbar = ({ isMobileHeader = false }) => {
           >
             <IoChatbubbleEllipses size={19} />
             <span className="text-xs">Chats</span>
-          </Link>
-
-          {/* Discovery Tab */}
-          <Link
-            to="/discovery"
-            className={`flex items-center gap-3.5 px-4 py-3 rounded-2xl font-bold transition-all duration-200 ${
-              isActiveDiscovery
-                ? "border border-blue-500 border-dashed text-[#0047e1] bg-blue-50/30"
-                : "text-slate-500 hover:bg-slate-200/50 hover:text-slate-800"
-            }`}
-          >
-            <IoCompassOutline size={19} />
-            <span className="text-xs">Discovery</span>
           </Link>
 
           {/* Groups Tab */}

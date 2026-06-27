@@ -25,7 +25,6 @@ import Home from "./pages/Home";
 import Chat from "./pages/Chat";
 import Notification from "./pages/Notification";
 import Wrapper from "./components/Wrapper";
-import Discovery from "./pages/Discovery";
 import Profile from "./pages/Profile";
 
 function App() {
@@ -93,7 +92,6 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/chat/:id" element={<Chat />} />
               <Route path="/notification" element={<Notification />} />
-              <Route path="/discovery" element={<Discovery />} />
               <Route path="/profile" element={<Profile />} />
             </Route>
 
