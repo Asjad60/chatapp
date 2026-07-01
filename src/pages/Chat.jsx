@@ -20,6 +20,12 @@ import EmojiPicker from "emoji-picker-react"
 import AudioPlayer from "../components/core/Chat/AudioPlayer";
 import { RiLoader3Line } from "react-icons/ri";
 
+const formatRecordingTime = (secs) => {
+  const mins = Math.floor(secs / 60);
+  const remainingSecs = secs % 60;
+  return `${mins}:${remainingSecs < 10 ? "0" : ""}${remainingSecs}`;
+};
+
 const Chat = () => {
   const { user, setLastChatWith } = getContextData();
   const [loading, setLoading] = useState(false);
@@ -57,6 +63,9 @@ const Chat = () => {
   const recordingIntervalRef = useRef(null);
   const isCancelRef = useRef(false);
   const isFetchingRef = useRef(false);
+  const audioRef = useRef(new Audio(messageSound));
+  const isCurrentlyTypingRef = useRef(false);
+  const sentinelRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -143,12 +152,18 @@ const Chat = () => {
         if (data.receiver === id || data.sender === id) {
           setMessages((prevMessages) => [...prevMessages, data]);
           socket.emit("message_seen", { senderId: user._id, receiverId: id });
-          if (data.sender === id) new Audio(messageSound).play();
+          if (data.sender === id) {
+            audioRef.current.currentTime = 0;
+            audioRef.current.play().catch((err) => console.log("Audio play failed:", err));
+          }
           setTimeout(() => scrollToBottom("smooth"), 50);
         }
       } else if (isGroupName && data.group === id) {
         setMessages((prevMessages) => [...prevMessages, data]);
-        if (data.sender === id) new Audio(messageSound).play();
+        if (data.sender !== user._id) {
+          audioRef.current.currentTime = 0;
+          audioRef.current.play().catch((err) => console.log("Audio play failed:", err));
+        }
         setTimeout(() => scrollToBottom("smooth"), 50);
       }
     },
@@ -266,7 +281,11 @@ const Chat = () => {
       let obj = { isTyping: true };
       if (isGroupName) obj.groupId = id;
       if (!isGroupName) obj.receiverId = id;
-      socket.emit("typing", obj);
+
+      if (!isCurrentlyTypingRef.current) {
+        isCurrentlyTypingRef.current = true;
+        socket.emit("typing", obj);
+      }
 
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
@@ -274,7 +293,8 @@ const Chat = () => {
 
       typingTimeoutRef.current = setTimeout(() => {
         socket.emit("typing", { ...obj, isTyping: false });
-      }, 500);
+        isCurrentlyTypingRef.current = false;
+      }, 2000);
     }
   };
 
@@ -316,21 +336,25 @@ const Chat = () => {
   }, [typingUsers]);
 
   useEffect(() => {
-    if (!chatContainer.current) return;
     const container = chatContainer.current;
+    const sentinel = sentinelRef.current;
+    if (!container || !sentinel || !paginationData.hasNextPage) return;
 
-    const ChatContainerScroll = () => {
-      if (paginationData.hasNextPage && container.scrollTop === 0) {
-        onLoadMore();
-      }
-    };
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !loading && !loadingMore && !isFetchingRef.current) {
+          onLoadMore();
+        }
+      },
+      { root: container, threshold: 0 }
+    );
 
-    container.addEventListener("scroll", ChatContainerScroll);
+    observer.observe(sentinel);
 
     return () => {
-      container.removeEventListener("scroll", ChatContainerScroll);
+      observer.disconnect();
     };
-  }, [paginationData.hasNextPage, onLoadMore]);
+  }, [paginationData.hasNextPage, loading, loadingMore, onLoadMore]);
 
   const handleSpeechToText = useCallback(() => {
     if (isListening) {
@@ -527,11 +551,7 @@ const Chat = () => {
     }
   };
 
-  const formatRecordingTime = (secs) => {
-    const mins = Math.floor(secs / 60);
-    const remainingSecs = secs % 60;
-    return `${mins}:${remainingSecs < 10 ? "0" : ""}${remainingSecs}`;
-  };
+
 
 
   return (
@@ -549,6 +569,7 @@ const Chat = () => {
       >
         {!loading ? (
           <>
+            <div ref={sentinelRef} className="h-[1px]" />
             {loadingMore && (
               <div className="w-full flex justify-center py-3">
                 <RiLoader3Line className="animate-spin text-3xl text-[#02339c]" />
@@ -557,7 +578,7 @@ const Chat = () => {
             <ChatList
               messages={messages}
               userId={user._id}
-              onReply={(msg) => setReplyTo(msg)}
+              onReply={setReplyTo}
               inputRef={inputRef}
               hasNextPage={paginationData.hasNextPage}
               onLoadMore={onLoadMore}

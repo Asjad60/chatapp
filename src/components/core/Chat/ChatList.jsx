@@ -5,7 +5,47 @@ import AudioPlayer from "./AudioPlayer";
 import { useLongPress } from "../../../hooks/useLongPress";
 import useSwipe from "../../../hooks/useSwipe";
 
-const MessageItem = ({
+const formatTime = (dateStr) => {
+  // Real-time socket messages arrive without createdAt — fall back to
+  // the current time, which is accurate since the message just arrived.
+  const date = dateStr ? new Date(dateStr) : new Date();
+  try {
+    return date.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch (e) {
+    return new Date().toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+};
+
+const formatDateLabel = (dateStr) => {
+  const date = dateStr ? new Date(dateStr) : new Date();
+  try {
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+
+    if (date.toDateString() === today.toDateString()) {
+      return "Today";
+    } else if (date.toDateString() === yesterday.toDateString()) {
+      return "Yesterday";
+    } else {
+      return date.toLocaleDateString([], {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+    }
+  } catch (e) {
+    return "Today";
+  }
+};
+
+const MessageItem = React.memo(({
   msg,
   i,
   isSentByCurrentUser,
@@ -171,9 +211,9 @@ const MessageItem = ({
       </div>
     </div>
   );
-};
+});
 
-const ChatList = ({
+const ChatList = React.memo(({
   messages,
   userId,
   onReply,
@@ -192,7 +232,7 @@ const ChatList = ({
   const msgHighlightTimeoutRef = useRef(null);
   const pendingScrollTargetIdRef = useRef(null);
 
-  const scrollToMessage = (targetId) => {
+  const scrollToMessage = useCallback((targetId) => {
     const map = messagesRef.current;
     const node = map.get(targetId);
 
@@ -217,7 +257,7 @@ const ChatList = ({
         pendingScrollTargetIdRef.current = null;
       }
     }
-  };
+  }, [hasNextPage, onLoadMore]);
 
   useEffect(() => {
     if (pendingScrollTargetIdRef.current && !loading && !loadingMore) {
@@ -254,45 +294,7 @@ const ChatList = ({
   }, [messages, hasNextPage, onLoadMore, loading, loadingMore]);
 
 
-  const formatTime = (dateStr) => {
-    // Real-time socket messages arrive without createdAt — fall back to
-    // the current time, which is accurate since the message just arrived.
-    const date = dateStr ? new Date(dateStr) : new Date();
-    try {
-      return date.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } catch (e) {
-      return new Date().toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    }
-  };
 
-  const formatDateLabel = (dateStr) => {
-    const date = dateStr ? new Date(dateStr) : new Date();
-    try {
-      const today = new Date();
-      const yesterday = new Date();
-      yesterday.setDate(today.getDate() - 1);
-
-      if (date.toDateString() === today.toDateString()) {
-        return "Today";
-      } else if (date.toDateString() === yesterday.toDateString()) {
-        return "Yesterday";
-      } else {
-        return date.toLocaleDateString([], {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        });
-      }
-    } catch (e) {
-      return "Today";
-    }
-  };
 
   return (
     <div
@@ -344,6 +346,6 @@ const ChatList = ({
       })}
     </div>
   );
-};
+});
 
 export default ChatList;
