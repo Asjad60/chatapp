@@ -65,7 +65,7 @@ const Chat = () => {
   const isFetchingRef = useRef(false);
   const audioRef = useRef(new Audio(messageSound));
   const isCurrentlyTypingRef = useRef(false);
-  const sentinelRef = useRef(null);
+  const initialScrollDoneRef = useRef(false);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -148,11 +148,12 @@ const Chat = () => {
 
   const handleNewMessage = useCallback(
     (data) => {
+      const senderId = typeof data.sender === "string" ? data.sender : data.sender?._id;
       if (!isGroupName) {
-        if (data.receiver === id || data.sender === id) {
+        if (data.receiver === id || senderId === id) {
           setMessages((prevMessages) => [...prevMessages, data]);
           socket.emit("message_seen", { senderId: user._id, receiverId: id });
-          if (data.sender === id) {
+          if (senderId === id) {
             audioRef.current.currentTime = 0;
             audioRef.current.play().catch((err) => console.log("Audio play failed:", err));
           }
@@ -160,7 +161,7 @@ const Chat = () => {
         }
       } else if (isGroupName && data.group === id) {
         setMessages((prevMessages) => [...prevMessages, data]);
-        if (data.sender !== user._id) {
+        if (senderId !== user._id) {
           audioRef.current.currentTime = 0;
           audioRef.current.play().catch((err) => console.log("Audio play failed:", err));
         }
@@ -250,6 +251,7 @@ const Chat = () => {
       if (container) {
         if (pageNumber === 1) {
           scrollToBottom("auto");
+          initialScrollDoneRef.current = true;
         } else {
           const newScrollHeight = container.scrollHeight;
           container.scrollTop = newScrollHeight - prevScrollHeight;
@@ -300,6 +302,7 @@ const Chat = () => {
 
   useEffect(() => {
     if (id) {
+      initialScrollDoneRef.current = false;
       setPage(1);
       setMessages([]);
       setPaginationData({ hasNextPage: false });
@@ -337,24 +340,24 @@ const Chat = () => {
 
   useEffect(() => {
     const container = chatContainer.current;
-    const sentinel = sentinelRef.current;
-    if (!container || !sentinel || !paginationData.hasNextPage) return;
+    if (!container) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && !loading && !loadingMore && !isFetchingRef.current) {
-          onLoadMore();
-        }
-      },
-      { root: container, threshold: 0 }
-    );
-
-    observer.observe(sentinel);
-
-    return () => {
-      observer.disconnect();
+    const handleScroll = () => {
+      if (
+        paginationData.hasNextPage &&
+        initialScrollDoneRef.current &&
+        container.scrollTop === 0 &&
+        !isFetchingRef.current
+      ) {
+        onLoadMore();
+      }
     };
-  }, [paginationData.hasNextPage, loading, loadingMore, onLoadMore]);
+
+    container.addEventListener("scroll", handleScroll);
+    return () => {
+      container.removeEventListener("scroll", handleScroll);
+    };
+  }, [paginationData.hasNextPage, onLoadMore]);
 
   const handleSpeechToText = useCallback(() => {
     if (isListening) {
@@ -569,7 +572,6 @@ const Chat = () => {
       >
         {!loading ? (
           <>
-            <div ref={sentinelRef} className="h-[1px]" />
             {loadingMore && (
               <div className="w-full flex justify-center py-3">
                 <RiLoader3Line className="animate-spin text-3xl text-[#02339c]" />
